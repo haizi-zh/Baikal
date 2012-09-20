@@ -1,6 +1,8 @@
 package org.zephyre.baikal;
 
 import ij.ImagePlus;
+import ij.gui.ImageCanvas;
+import ij.gui.ImageWindow;
 import ij.io.Opener;
 
 import java.awt.BorderLayout;
@@ -30,6 +32,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -59,11 +65,16 @@ import javax.swing.event.ChangeListener;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.zephyre.baikal.camera.BaikalAbstractCamera;
+import org.zephyre.baikal.camera.BaikalCameraException;
+import org.zephyre.baikal.camera.BaikalSimCamera;
+import org.zephyre.baikal.imagepanel.ImagePanel;
+import org.zephyre.baikal.imagepanel.ImagePanelMouseEvent;
+import org.zephyre.baikal.imagepanel.ImagePanelMouseMotionListener;
 
 public class BaikalMainFrame extends JFrame {
-	private JButton okButton;
-	private JButton cancelButton;
 	private BaikalCore core;
+
 	private BaikalGridFrame gridFrame;
 	private JButton toggleLiveButton;
 	private JButton runTestButton;
@@ -73,6 +84,13 @@ public class BaikalMainFrame extends JFrame {
 	private JComboBox lensListComboBox;
 	private JButton camConnectButton;
 	private JLabel statusLabel;
+
+	private ImagePanel imagePanel;
+
+	// Thread executor for previewing
+	private ExecutorService previewExec;
+	private volatile boolean isPreviewing;
+
 	private static BaikalMainFrame instance;
 
 	public BaikalCore getCore() {
@@ -90,6 +108,12 @@ public class BaikalMainFrame extends JFrame {
 		}
 		BaikalMainFrame.instance = this;
 
+		try {
+			core.loadAllDevices();
+		} catch (BaikalCameraException e) {
+			JOptionPane.showMessageDialog(this, "无法连接到相机，请检查硬件配置是否正常。", "错误",
+					JOptionPane.ERROR_MESSAGE);
+		}
 		initUI();
 	}
 
@@ -194,11 +218,13 @@ public class BaikalMainFrame extends JFrame {
 		camConnectButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				core.connectCamera();
-				JOptionPane
-						.showMessageDialog(BaikalMainFrame.this,
-								"无法连接到相机，请检查硬件配置是否正常。", "错误",
-								JOptionPane.ERROR_MESSAGE);
+				try {
+					core.connectCamera();
+				} catch (BaikalCameraException e1) {
+					JOptionPane.showMessageDialog(BaikalMainFrame.this,
+							"无法连接到相机，请检查硬件配置是否正常。", "错误",
+							JOptionPane.ERROR_MESSAGE);
+				}
 			}
 		});
 		JPanel camConnectionPanel = new JPanel();
@@ -224,14 +250,22 @@ public class BaikalMainFrame extends JFrame {
 		shutterSlider.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent arg0) {
-				shutterText.setValue(shutterSlider.getValue());
+				int val = shutterSlider.getValue();
+				try {
+					core.getCamera().setExposureTime(val);
+					shutterText.setValue(val);
+					core.getUserData().put("Shutter", val);
+				} catch (BaikalCameraException e) {
+					JOptionPane.showMessageDialog(BaikalMainFrame.this, "相机异常",
+							"错误", JOptionPane.ERROR_MESSAGE);
+				}
 			}
 		});
 		shutterText.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				shutterSlider.setValue(((Number) shutterText.getValue())
-						.intValue());
+				int val = ((Number) shutterText.getValue()).intValue();
+				shutterSlider.setValue(val);
 			}
 		});
 		shutterText.addFocusListener(new FocusAdapter() {
@@ -286,11 +320,10 @@ public class BaikalMainFrame extends JFrame {
 				DefaultButtonModel model = (DefaultButtonModel) toggleLiveButton
 						.getModel();
 				if (model.isSelected()) {
+					stopPreview();
 					model.setSelected(false);
 					toggleLiveButton.setText("预览");
 				} else {
-					model.setSelected(true);
-					toggleLiveButton.setText("停止");
 					if (gridFrame == null) {
 						gridFrame = new BaikalGridFrame();
 					}
@@ -300,6 +333,10 @@ public class BaikalMainFrame extends JFrame {
 					gridFrame.setSegCount(1);
 					gridFrame.setXYOffset(0, 0);
 					gridFrame.setVisible(true);
+					startPreview();
+
+					model.setSelected(true);
+					toggleLiveButton.setText("停止");
 				}
 			}
 		});
@@ -308,6 +345,7 @@ public class BaikalMainFrame extends JFrame {
 		runTestButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				performMeasurement();
 				Runnable task = new Runnable() {
 					@Override
 					public void run() {
@@ -403,7 +441,7 @@ public class BaikalMainFrame extends JFrame {
 						}
 					}
 				};
-				(new Thread(task)).start();
+				// (new Thread(task)).start();
 			}
 		});
 
@@ -485,9 +523,23 @@ public class BaikalMainFrame extends JFrame {
 		mainPanel.add(Box.createVerticalGlue(), gbc);
 
 		// The painting area
-		JPanel imagePanel = new JPanel();
-		imagePanel.setPreferredSize(new Dimension(640, 480));
+		imagePanel = new ImagePanel();
+		imagePanel.setPreferredSize(new Dimension(800, 800 * 2 / 3));
 		imagePanel.setBackground(Color.BLACK);
+		imagePanel
+				.addImagePanelMouseMotionListener(new ImagePanelMouseMotionListener() {
+					@Override
+					public void mouseDragged(MouseEvent e) {
+					}
+
+					@Override
+					public void mouseMoved(MouseEvent e) {
+						ImagePanelMouseEvent evt = (ImagePanelMouseEvent) e;
+						statusLabel.setText(String.format(
+								"Original: %d, %d; Image: %d, %d", evt.getX(),
+								evt.getY(), evt.getImageX(), evt.getImageY()));
+					}
+				});
 		imagePanel.addMouseListener(new MouseListener() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -527,9 +579,100 @@ public class BaikalMainFrame extends JFrame {
 		gbc.gridx = 2;
 		gbc.gridy = 0;
 		gbc.gridheight = 11;
+		// imagePanel.drawImage();
 		mainPanel.add(imagePanel, gbc);
 
 		return mainPanel;
+	}
+
+	protected void startPreview() {
+		previewExec = Executors.newCachedThreadPool();
+		isPreviewing = true;
+		previewExec.execute(new Runnable() {
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				BaikalAbstractCamera cam = core.getCamera();
+
+				ReentrantLock lock = imagePanel.lock;
+				byte[] buffer = null;
+				while (!Thread.interrupted() && isPreviewing) {
+					try {
+						lock.lockInterruptibly();
+						imagePanel.initImage(cam.getWidth(), cam.getHeight(),
+								cam.getBitDepth());
+						buffer = imagePanel.getInternalBuffer();
+					} catch (InterruptedException e1) {
+						e1.printStackTrace();
+					} catch (BaikalCameraException e) {
+						JOptionPane.showMessageDialog(BaikalMainFrame.this,
+								"相机异常", "错误", JOptionPane.ERROR_MESSAGE);
+					} finally {
+						if (lock.isHeldByCurrentThread())
+							lock.unlock();
+					}
+
+					try {
+						cam.snapshotAndWait(buffer, lock);
+					} catch (BaikalCameraException e) {
+						JOptionPane.showMessageDialog(BaikalMainFrame.this,
+								"相机异常", "错误", JOptionPane.ERROR_MESSAGE);
+					}
+
+					SwingUtilities.invokeLater(new Runnable() {
+						@Override
+						public void run() {
+							imagePanel.repaint();
+						}
+					});
+				}
+			}
+		});
+	}
+
+	protected void stopPreview() {
+		// TODO Auto-generated method stub
+		if (previewExec == null)
+			return;
+
+		isPreviewing = false;
+		previewExec.shutdown();
+		previewExec = null;
+	}
+
+	/*
+	 * Start to measure the surface
+	 */
+	public void performMeasurement() {
+		// TODO Auto-generated method stub
+		BaikalAbstractCamera cam = core.getCamera();
+
+		ReentrantLock lock = imagePanel.lock;
+		byte[] buffer = null;
+		try {
+			lock.lockInterruptibly();
+			imagePanel.initImage(cam.getWidth(), cam.getHeight(),
+					cam.getBitDepth());
+			buffer = imagePanel.getInternalBuffer();
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (BaikalCameraException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			if (lock.isHeldByCurrentThread())
+				lock.unlock();
+		}
+
+		try {
+			cam.snapshotAndWait(buffer, lock);
+		} catch (BaikalCameraException e) {
+			JOptionPane.showMessageDialog(BaikalMainFrame.this, "相机异常", "错误",
+					JOptionPane.ERROR_MESSAGE);
+		}
+
+		imagePanel.repaint();
 	}
 
 	/**

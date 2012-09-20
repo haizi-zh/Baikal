@@ -19,6 +19,9 @@ import javax.swing.UIManager;
 
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
+import org.zephyre.baikal.camera.BaikalAbstractCamera;
+import org.zephyre.baikal.camera.BaikalCameraException;
+import org.zephyre.baikal.camera.BaikalSimCamera;
 
 public class BaikalCore {
 	private static void setUIFont() {
@@ -56,6 +59,7 @@ public class BaikalCore {
 
 	private JSONObject userData;
 	private JSONObject devicesList;
+	private BaikalAbstractCamera cam;
 
 	/**
 	 * Initialize the BaikalCore object with the configuration file.
@@ -67,11 +71,17 @@ public class BaikalCore {
 	public BaikalCore(String fileName) throws IOException {
 		// Load the user
 		BufferedReader reader = null;
-		reader = new BufferedReader(new FileReader(fileName));
-		userData = (JSONObject) JSONValue.parse(reader);
-		if (userData == null)
-			throw new IOException();
-		reader.close();
+		try {
+			reader = new BufferedReader(new FileReader(fileName));
+			userData = (JSONObject) JSONValue.parse(reader);
+			if (userData == null)
+				throw new IOException();
+		} finally {
+			if (reader != null) {
+				reader.close();
+				reader = null;
+			}
+		}
 
 		// Check the user data
 		HashMap<String, Object> defaultPairs = new HashMap<String, Object>();
@@ -89,6 +99,7 @@ public class BaikalCore {
 		defaultPairs.put("MarkerRadius", 16);
 		defaultPairs.put("GridSegmentCount", 10);
 		defaultPairs.put("ISO", 100);
+		defaultPairs.put("Resolution", 1);
 
 		// If userData is updated, it needs to be serialized to disk.
 		for (String key : defaultPairs.keySet()) {
@@ -98,16 +109,31 @@ public class BaikalCore {
 		}
 		serialize();
 
-		reader = new BufferedReader(new FileReader(fileName));
-		userData = (JSONObject) JSONValue.parse(reader);
-		if (userData == null)
-			throw new IOException();
-		reader.close();
+		try {
+			reader = new BufferedReader(new FileReader(fileName));
+			userData = (JSONObject) JSONValue.parse(reader);
+			if (userData == null)
+				throw new IOException();
+		} finally {
+			if (reader != null) {
+				reader.close();
+				reader = null;
+			}
+		}
 
 		// Load the devices information.
-		reader = new BufferedReader(new FileReader("Devices.dat"));
-		devicesList = (JSONObject) JSONValue.parse(reader);
-		reader.close();
+		try {
+			reader = new BufferedReader(new FileReader("Devices.dat"));
+			devicesList = (JSONObject) JSONValue.parse(reader);
+		} finally {
+			if (reader != null) {
+				reader.close();
+				reader = null;
+			}
+		}
+
+		// Initialize devices
+		cam = new BaikalSimCamera();
 	}
 
 	/**
@@ -118,9 +144,15 @@ public class BaikalCore {
 	public void serialize() throws IOException {
 		String fileName = (String) userData.get("Name") + ".ini";
 
-		BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
-		writer.write(userData.toJSONString());
-		writer.close();
+		BufferedWriter writer = null;
+		try {
+			writer = new BufferedWriter(new FileWriter(fileName));
+			writer.write(userData.toJSONString());
+			writer.close();
+		} finally {
+			if (writer != null)
+				writer.close();
+		}
 	}
 
 	public JSONObject getUserData() {
@@ -131,8 +163,47 @@ public class BaikalCore {
 		return devicesList;
 	}
 
-	public void connectCamera() {
-		// TODO Auto-generated method stub
+	/*
+	 * Initialize and load all the devices
+	 */
+	public void loadAllDevices() throws BaikalCameraException {
+		connectCamera();
+		setExposureTime(((Number) getUserData().get("Shutter")).intValue());
+		setResolution(((Number) getUserData().get("Resolution")).intValue());
+	}
 
+	/*
+	 * Connect to the default camrea.
+	 */
+	public void connectCamera() throws BaikalCameraException {
+		cam.connect();
+	}
+
+	/*
+	 * Set the exposure time in millisecond.
+	 */
+	public void setExposureTime(int val) throws BaikalCameraException {
+		cam.setExposureTime(val);
+	}
+
+	/*
+	 * Get the exposure time in millisecond.
+	 */
+	public int exposureTime() throws BaikalCameraException {
+		return cam.exposureTime();
+	}
+
+	/*
+	 * Set the resolution type.
+	 */
+	public void setResolution(int res) throws BaikalCameraException {
+		cam.setResolutioin(res);
+	}
+
+	/*
+	 * Get the camera object.
+	 */
+	public BaikalAbstractCamera getCamera() {
+		return cam;
 	}
 }
