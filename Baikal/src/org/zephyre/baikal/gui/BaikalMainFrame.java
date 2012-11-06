@@ -319,12 +319,6 @@ public class BaikalMainFrame extends JFrame {
 					if (bufImage_ != null)
 						imageStorage_.offer(bufImage_);
 					bufImage_ = bi2;
-					try {
-						ImageIO.write(bufImage_, "jpg", new File("test.jpg"));
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
 					updateImage();
 				}
 			}
@@ -891,10 +885,11 @@ public class BaikalMainFrame extends JFrame {
 		if (bufImage_ == null)
 			return;
 
-		HashMap<String, Object> hm = core_.measureMarkers(bufImage_, 2);
-		BufferedImage bufProcImage = (BufferedImage) hm.get("ProcessedImage");
-		double[][] markerList = (double[][]) hm.get("MarkerList");
-		imagePanel_.drawImage(bufProcImage, markerList, null, null);
+		imagePanel_.drawImage(copyImage(bufImage_,null), null, null, null);
+//		HashMap<String, Object> hm = core_.measureMarkers(bufImage_, 2);
+//		BufferedImage bufProcImage = (BufferedImage) hm.get("ProcessedImage");
+//		double[][] markerList = (double[][]) hm.get("MarkerList");
+//		imagePanel_.drawImage(bufProcImage, markerList, null, null);
 	}
 
 	/**
@@ -1593,15 +1588,6 @@ public class BaikalMainFrame extends JFrame {
 	 * 
 	 */
 	private static boolean test() {
-		HashMap<Integer, Double> hm1 = new HashMap<Integer, Double>();
-		for (int i = 0; i < 3; i++)
-			hm1.put(i, (double) (i * 2));
-
-		HashMap<Integer, Double> hm2 = (HashMap<Integer, Double>) hm1.clone();
-		hm2.put(0, (double) 256);
-
-		Double x = hm1.get(0);
-
 		return false;
 	}
 

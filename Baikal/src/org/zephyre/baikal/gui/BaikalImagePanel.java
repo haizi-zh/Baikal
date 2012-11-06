@@ -37,6 +37,7 @@ import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -70,14 +71,18 @@ public class BaikalImagePanel extends JPanel {
 
 	@Override
 	protected void paintComponent(Graphics g) {
+		BaikalCore.log("BaikalImage");
 		super.paintComponent(g);
+
+		Graphics2D g2d = (Graphics2D) g;
+		g2d.setBackground(Color.BLACK);
+		g2d.clearRect(0, 0, getWidth(), getHeight());
 
 		synchronized (renderLock_) {
 			if (bufImage_ == null)
 				return;
 
 			// 渲染bufImage
-			Graphics2D g2d = (Graphics2D) g;
 			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 					RenderingHints.VALUE_ANTIALIAS_ON);
 			g2d.setRenderingHint(RenderingHints.KEY_RENDERING,
@@ -122,6 +127,7 @@ public class BaikalImagePanel extends JPanel {
 				g2d.drawRect(rc.x, rc.y, rc.width, rc.height);
 			}
 		}
+
 	}
 
 	public enum PanelStatus {
@@ -133,11 +139,12 @@ public class BaikalImagePanel extends JPanel {
 	 * 表明resize操作针对的是哪条边（或者是哪两条边）。四条边(left, top, right, bottom)
 	 * 分别对应该变量的4个位：[left][top][right][bottom]
 	 */
-	private byte roiResizingEdge_;
+	private BitSet roiEdge_;
 
 	BaikalImagePanel() {
 		renderLock_ = new Object();
 		panelStatus_ = PanelStatus.FREE_MOVE;
+		roiEdge_ = new BitSet(4);
 		addMouseMotionListener(new MouseAdapter() {
 			public void mouseMoved(MouseEvent e) {
 				// 定义图标的形状
@@ -187,68 +194,68 @@ public class BaikalImagePanel extends JPanel {
 						final int RESIZING_TORLERANCE = 2;
 
 						// 判断是否处于边框上
-						byte onBrim = 0;
-						if (Math.abs(x - roiScrRc.x) <= RESIZING_TORLERANCE
-								&& y >= roiScrRc.y - RESIZING_TORLERANCE
-								&& y < roiScrRc.y + roiScrRc.height
-										+ RESIZING_TORLERANCE)
-							onBrim |= 8;
-						if (Math.abs(x - roiScrRc.x - roiScrRc.width) <= RESIZING_TORLERANCE
-								&& y >= roiScrRc.y - RESIZING_TORLERANCE
-								&& y < roiScrRc.y + roiScrRc.height
-										+ RESIZING_TORLERANCE)
-							onBrim |= 2;
-						if (Math.abs(y - roiScrRc.y) <= RESIZING_TORLERANCE
-								&& x >= roiScrRc.x - RESIZING_TORLERANCE
+						roiEdge_.set(0, 4, false);
+						if (x >= roiScrRc.x - RESIZING_TORLERANCE
 								&& x < roiScrRc.x + roiScrRc.width
-										+ RESIZING_TORLERANCE)
-							onBrim |= 4;
-						if (Math.abs(y - roiScrRc.y - roiScrRc.height) <= RESIZING_TORLERANCE
-								&& x >= roiScrRc.x - RESIZING_TORLERANCE
-								&& x < roiScrRc.x + roiScrRc.width
-										+ RESIZING_TORLERANCE)
-							onBrim |= 1;
-						if (onBrim == 0)
-							panelStatus_ = PanelStatus.FREE_MOVE;
-						else {
+										+ RESIZING_TORLERANCE
+								&& y >= roiScrRc.y - RESIZING_TORLERANCE
+								&& y < roiScrRc.y + roiScrRc.width
+										+ RESIZING_TORLERANCE) {
+							// 坐标落在矩形框之内
+							if (Math.abs(x - roiScrRc.x) <= RESIZING_TORLERANCE)
+								roiEdge_.set(0);
+							if (Math.abs(x - roiScrRc.x - roiScrRc.width) <= RESIZING_TORLERANCE)
+								roiEdge_.set(2);
+							if (Math.abs(y - roiScrRc.y) <= RESIZING_TORLERANCE)
+								roiEdge_.set(1);
+							if (Math.abs(y - roiScrRc.y - roiScrRc.height) <= RESIZING_TORLERANCE)
+								roiEdge_.set(3);
+						}
+						byte onBrim = roiEdge_.toByteArray()[0];
+						if (onBrim == 0) {
+							// 不在边框上面
+							if (roiScrRc.contains(x, y)) {
+								setCursor(Cursor
+										.getPredefinedCursor(Cursor.MOVE_CURSOR));
+								panelStatus_ = PanelStatus.ABOUT_ROI_MOVING;
+							} else {
+								setCursor(Cursor
+										.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+								panelStatus_ = PanelStatus.FREE_MOVE;
+							}
+						} else {
 							panelStatus_ = PanelStatus.ABOUT_ROI_RESIZING;
-							roiResizingEdge_ = onBrim;
+							switch (onBrim) {
+							case 2:
+							case 8:
+								setCursor(Cursor
+										.getPredefinedCursor(Cursor.S_RESIZE_CURSOR));
+								break;
+							case 1:
+							case 4:
+								setCursor(Cursor
+										.getPredefinedCursor(Cursor.E_RESIZE_CURSOR));
+								break;
+							case 3:
+							case 12:
+								setCursor(Cursor
+										.getPredefinedCursor(Cursor.NW_RESIZE_CURSOR));
+								break;
+							case 6:
+							case 9:
+								setCursor(Cursor
+										.getPredefinedCursor(Cursor.SW_RESIZE_CURSOR));
+								break;
+							}
 						}
-						switch (onBrim) {
-						case 0:
-							break;
-						case 1:
-						case 4:
-							setCursor(Cursor
-									.getPredefinedCursor(Cursor.S_RESIZE_CURSOR));
-							return;
-						case 2:
-						case 8:
-							setCursor(Cursor
-									.getPredefinedCursor(Cursor.E_RESIZE_CURSOR));
-							return;
-						case 3:
-						case 12:
-							setCursor(Cursor
-									.getPredefinedCursor(Cursor.NW_RESIZE_CURSOR));
-							return;
-						case 6:
-						case 9:
-							setCursor(Cursor
-									.getPredefinedCursor(Cursor.SW_RESIZE_CURSOR));
-							return;
-						}
-						// 不在边框上面
-						if (roiScrRc.contains(x, y)) {
-							setCursor(Cursor
-									.getPredefinedCursor(Cursor.MOVE_CURSOR));
-							panelStatus_ = PanelStatus.ABOUT_ROI_MOVING;
-						} else
-							setCursor(Cursor
-									.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
-					} else
+
+					} else {
 						setCursor(Cursor
 								.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+						panelStatus_ = PanelStatus.FREE_MOVE;
+					}
+					break;
+				default:
 					break;
 				}
 			}
@@ -281,7 +288,7 @@ public class BaikalImagePanel extends JPanel {
 					}
 					break;
 				case ROI_RESIZING:
-					if ((roiResizingEdge_ & 0x8) != 0) {
+					if (roiEdge_.get(0)) {
 						// 左侧
 						int newX = (int) Math.round(coord[0]);
 						if (newX < roiRect_.x + roiRect_.width)
@@ -289,7 +296,7 @@ public class BaikalImagePanel extends JPanel {
 									roiRect_.x + roiRect_.width - newX,
 									roiRect_.height);
 					}
-					if ((roiResizingEdge_ & 0x4) != 0) {
+					if (roiEdge_.get(1)) {
 						// 上
 						int newY = (int) Math.round(coord[1]);
 						if (newY < roiRect_.y + roiRect_.height)
@@ -297,14 +304,14 @@ public class BaikalImagePanel extends JPanel {
 									roiRect_.width, roiRect_.y
 											+ roiRect_.height - newY);
 					}
-					if ((roiResizingEdge_ & 0x2) != 0) {
+					if (roiEdge_.get(2)) {
 						// 右
 						int newX = (int) Math.round(coord[0]);
 						if (newX > roiRect_.x)
 							roiRect_ = new Rectangle(roiRect_.x, roiRect_.y,
 									newX - roiRect_.x, roiRect_.height);
 					}
-					if ((roiResizingEdge_ & 0x1) != 0) {
+					if (roiEdge_.get(3)) {
 						// 下
 						int newY = (int) Math.round(coord[1]);
 						if (newY > roiRect_.y)

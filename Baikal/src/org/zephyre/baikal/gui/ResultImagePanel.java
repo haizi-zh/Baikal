@@ -8,6 +8,7 @@ import java.awt.image.BufferedImage;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.zephyre.baikal.BaikalCore;
 import org.zephyre.baikal.GridLineModel;
 
 /**
@@ -54,14 +55,11 @@ public class ResultImagePanel extends BaikalImagePanel {
 
 	@Override
 	protected void paintComponent(Graphics g) {
-		super.paintComponents(g);
-
-		Graphics2D g2d = (Graphics2D) g;
-
-		g2d.setBackground(Color.BLACK);
-		g2d.clearRect(0, 0, getWidth(), getHeight());
+		BaikalCore.log("ResultImage");
+		super.paintComponent(g);
 
 		synchronized (resultLock_) {
+			Graphics2D g2d = (Graphics2D) g;
 			// 绘制marker中心标尺
 			if (markerList_ != null) {
 				for (int i = 0; i < markerList_.length; i++) {
