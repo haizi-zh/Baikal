@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.zephyre.baikal.imagepanel;
+package org.zephyre.baikal.gui;
 
 import java.awt.Component;
 import java.awt.Point;

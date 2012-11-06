@@ -1,4 +1,4 @@
-package org.zephyre.baikal;
+package org.zephyre.baikal.gui;
 
 import javax.swing.JFrame;
 

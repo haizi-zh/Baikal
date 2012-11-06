@@ -8,7 +8,10 @@ public class BaikalCameraException extends Exception {
 	private BaikalCameraErrorDesc desc;
 
 	public BaikalCameraException() {
-		super();
+	}
+	
+	public BaikalCameraException(BaikalCameraErrorDesc desc){
+		setDesc(desc);
 	}
 
 	public BaikalCameraException(String message) {

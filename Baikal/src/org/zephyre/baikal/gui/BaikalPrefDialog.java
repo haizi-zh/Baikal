@@ -1,4 +1,4 @@
-package org.zephyre.baikal;
+package org.zephyre.baikal.gui;
 
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -6,6 +6,8 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.util.HashMap;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -18,6 +20,7 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRootPane;
 import javax.swing.JScrollPane;
@@ -26,6 +29,10 @@ import javax.swing.KeyStroke;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.zephyre.baikal.BaikalCore;
+import org.zephyre.baikal.BaikalCore.PrefConst;
+
+import com.google.gson.JsonParseException;
 
 public class BaikalPrefDialog extends JDialog {
 	private BaikalCore core;
@@ -67,7 +74,8 @@ public class BaikalPrefDialog extends JDialog {
 		gbc.gridx = 0;
 		gbc.gridy = 0;
 
-		int isoSpeed = ((Long) core.getUserData().get("ISO")).intValue();
+		int isoSpeed = ((Number) core.getEntryValue(PrefConst.ISO_SPEED))
+				.intValue();
 		JLabel isoLabel = new JLabel(String.format("%s %d", "感光度：ISO ",
 				isoSpeed));
 		JSlider isoSlider = new JSlider(0, 7);
@@ -125,29 +133,12 @@ public class BaikalPrefDialog extends JDialog {
 		gbc.insets = new Insets(5, 5, 5, 5);
 		gbc.anchor = GridBagConstraints.LINE_START;
 
-		JSONObject spDevices = core.getSupportedDevices();
 		JLabel camLabel = new JLabel("相机型号：");
-		JSONArray camArray = (JSONArray) spDevices.get("SupportedCameras");
-		String[] camNames = new String[camArray.size()];
-		String camModel = (String) core.getUserData().get("CameraModel");
-		int camModelIndex = -1;
-		for (int i = 0; i < camNames.length; i++) {
-			camNames[i] = (String) camArray.get(i);
-			if (camModel.equals(camNames[i]))
-				camModelIndex = i;
-		}
-
-		DefaultListModel camListModel = new DefaultListModel();
-		for (String cam : camNames) {
-			camListModel.addElement(cam);
-		}
-
 		JScrollPane camListScrollPane = new JScrollPane();
 		camListScrollPane.setBorder(BorderFactory.createEtchedBorder());
 		camListScrollPane.setPreferredSize(new Dimension(180, 160));
-		JList camJList = new JList(camListModel);
-		if (camListModel.getSize() > 0)
-			camJList.setSelectedIndex(camModelIndex);
+		DefaultListModel<String> camListModel = new DefaultListModel<String>();
+		JList<String> camJList = new JList<String>(camListModel);
 		camListScrollPane.getViewport().add(camJList);
 
 		gbc.gridy = 0;
@@ -158,27 +149,12 @@ public class BaikalPrefDialog extends JDialog {
 		gbc.gridheight = 1;
 
 		JLabel lensLabel = new JLabel("镜头型号：");
-		JSONArray lensArray = (JSONArray) spDevices.get("SupportedLenses");
-		String[] lensNames = new String[lensArray.size()];
-		String lensModel = (String) core.getUserData().get("LensModel");
-		int lensModelIndex = -1;
-		for (int i = 0; i < lensNames.length; i++) {
-			lensNames[i] = (String) lensArray.get(i);
-			if (lensModel.equals(lensNames[i]))
-				lensModelIndex = i;
-		}
-
-		DefaultListModel lensListModel = new DefaultListModel();
-		for (String lens : lensNames) {
-			lensListModel.addElement(lens);
-		}
 
 		JScrollPane lensListScrollPane = new JScrollPane();
 		lensListScrollPane.setBorder(BorderFactory.createEtchedBorder());
 		lensListScrollPane.setPreferredSize(new Dimension(180, 240));
-		JList lensJList = new JList(lensListModel);
-		if (lensListModel.getSize() > 0)
-			lensJList.setSelectedIndex(lensModelIndex);
+		DefaultListModel<String> lensListModel = new DefaultListModel<String>();
+		JList<String> lensJList = new JList<String>(lensListModel);
 		lensListScrollPane.getViewport().add(lensJList);
 
 		gbc.gridy += 2;
@@ -211,6 +187,21 @@ public class BaikalPrefDialog extends JDialog {
 		gbc.gridy = 6;
 		gbc.weighty = 1;
 		devListPanel.add(calLensButton, gbc);
+
+		HashMap<String, String[]> spDevices = core.getDeviceList();
+		String[] camNames = spDevices.get(PrefConst.CAMERA_LIST);
+		for (String cam : camNames) {
+			camListModel.addElement(cam);
+		}
+		camJList.setSelectedValue(core.getEntryValue(PrefConst.CAMERA_MODEL),
+				true);
+
+		String[] lensNames = spDevices.get(PrefConst.LENS_LIST);
+		for (String lens : lensNames) {
+			lensListModel.addElement(lens);
+		}
+		lensJList.setSelectedValue(core.getEntryValue(PrefConst.LENS_MODEL),
+				true);
 
 		return devListPanel;
 	}

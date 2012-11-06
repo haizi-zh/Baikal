@@ -1,17 +1,13 @@
 package org.zephyre.baikal.camera;
 
+import java.awt.image.BufferedImage;
+import java.util.HashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 public abstract class BaikalAbstractCamera {
 	public abstract void connect() throws BaikalCameraException;
 
 	public abstract void disconnect();
-
-	/*
-	 * Take a single shot, fill the image into the buffer, and then call back
-	 */
-	public abstract void snapshot(byte[] buffer, Runnable callback)
-			throws BaikalCameraException;
 
 	/*
 	 * Get the size in bytes which is needed during a capture.
@@ -23,11 +19,24 @@ public abstract class BaikalAbstractCamera {
 	 */
 	public abstract int getBitDepth() throws BaikalCameraException;
 
-	/*
-	 * Take a single shot and wait for return.
+	/**
+	 * 单张拍照（阻塞模式）。返回的BufferedImage使用完毕以后需要归还。
+	 * 
+	 * @return 图像
+	 * @throws BaikalCameraException
+	 * @throws InterruptedException
 	 */
-	public abstract void snapshotAndWait(byte[] buffer, ReentrantLock lock)
-			throws BaikalCameraException;
+	public abstract BufferedImage snapshotAndWait()
+			throws BaikalCameraException, InterruptedException;
+
+	/**
+	 * 将获取到的BufferedImage归还到相机的内部缓冲区序列中。
+	 * 
+	 * @param img
+	 * @throws InterruptedException
+	 */
+	public abstract void releaseImage(BufferedImage img)
+			throws InterruptedException;
 
 	/*
 	 * If the camera has been connected to PC
@@ -39,7 +48,7 @@ public abstract class BaikalAbstractCamera {
 	 * 
 	 * @param resType The resolution id, starts from 1
 	 */
-	public abstract void setResolutioin(int resType)
+	public abstract void setResolution(int resType)
 			throws BaikalCameraException;
 
 	/*
@@ -60,6 +69,14 @@ public abstract class BaikalAbstractCamera {
 	/*
 	 * Get the exposure time in millisecond.
 	 */
-	public abstract int exposureTime() throws BaikalCameraException;
+	public abstract int exposureMs() throws BaikalCameraException;
 
+	/**
+	 * misc数据
+	 */
+	private HashMap<String, Object> optData_ = new HashMap<String, Object>();
+
+	public HashMap<String, Object> getOptData() {
+		return optData_;
+	}
 }
