@@ -216,6 +216,7 @@ public class BaikalSimCamera extends BaikalAbstractCamera {
 	public synchronized BufferedImage snapshotAndWait()
 			throws BaikalCameraException, InterruptedException {
 		BufferedImage image = null;
+		BaikalCore core = BaikalCore.getInstance();
 		try {
 			long tic = System.nanoTime();
 			int width = getWidth();
@@ -237,9 +238,9 @@ public class BaikalSimCamera extends BaikalAbstractCamera {
 			g2d.setBackground(Color.DARK_GRAY);
 			g2d.clearRect(0, 0, width, height);
 
-			final int MARGIN = ((Number) prefData.get(PrefConst.MARKER_MARGIN))
+			final int MARGIN = ((Number) core.getEntry(PrefConst.MARKER_MARGIN))
 					.intValue();
-			int diameter = 2 * ((Number) prefData.get(PrefConst.MARKER_RADIUS))
+			int diameter = 2 * ((Number) core.getEntry(PrefConst.MARKER_RADIUS))
 					.intValue();
 			int left = MARGIN;
 			int right = getWidth() - MARGIN - diameter;
@@ -252,11 +253,11 @@ public class BaikalSimCamera extends BaikalAbstractCamera {
 			g2d.setStroke(new BasicStroke(2));
 			g2d.setColor(Color.GREEN);
 			// 确定纵横线的数量
-			int horzDensity = ((Number) prefData.get(PrefConst.HORZ_DENSITY))
+			int horzDensity = ((Number) core.getEntry(PrefConst.HORZ_DENSITY))
 					.intValue();
-			int vertDensity = ((Number) prefData.get(PrefConst.VERT_DENSITY))
+			int vertDensity = ((Number) core.getEntry(PrefConst.VERT_DENSITY))
 					.intValue();
-			int segCount = ((Number) prefData.get(PrefConst.SEGMENT_COUNT))
+			int segCount = ((Number) core.getEntry(PrefConst.SEGMENT_COUNT))
 					.intValue();
 			int nHGrids = horzDensity / segCount;
 			int nVGrids = vertDensity / segCount;

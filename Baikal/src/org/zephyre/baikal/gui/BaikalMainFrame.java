@@ -243,7 +243,7 @@ public class BaikalMainFrame extends JFrame {
 		basicPanel.add(createControllerPanel());
 
 		setTitle("Baikal光学镜面检测系统 - "
-				+ (String) core_.getEntryValue(PrefConst.NAME));
+				+ (String) core_.getEntry(PrefConst.NAME));
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		pack();
 		this.setMinimumSize(this.getPreferredSize());
@@ -274,7 +274,7 @@ public class BaikalMainFrame extends JFrame {
 			public void actionPerformed(ActionEvent evt) {
 				BaikalAbstractCamera cam = core_.getCamera();
 				int segCount = ((Number) core_
-						.getEntryValue(PrefConst.SEGMENT_COUNT)).intValue();
+						.getEntry(PrefConst.SEGMENT_COUNT)).intValue();
 
 				BufferedImage bi = null;
 				BufferedImage bi2 = null;
@@ -423,7 +423,7 @@ public class BaikalMainFrame extends JFrame {
 				devList.get(PrefConst.CAMERA_LIST));
 		camListComboBox.setSelectedItem(null);
 		camListComboBox.setSelectedItem(core_
-				.getEntryValue(PrefConst.CAMERA_MODEL));
+				.getEntry(PrefConst.CAMERA_MODEL));
 		camListComboBox.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -437,7 +437,7 @@ public class BaikalMainFrame extends JFrame {
 				devList.get(PrefConst.LENS_LIST));
 		lensListComboBox.setSelectedItem(null);
 		lensListComboBox.setSelectedItem(core_
-				.getEntryValue(PrefConst.LENS_MODEL));
+				.getEntry(PrefConst.LENS_MODEL));
 		lensListComboBox.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -460,7 +460,7 @@ public class BaikalMainFrame extends JFrame {
 		camConnectionPanel.add(Box.createHorizontalGlue());
 		camConnectionPanel.add(camConnectButton_);
 
-		int shutter = ((Number) core_.getEntryValue(PrefConst.SHUTTER))
+		int shutter = ((Number) core_.getEntry(PrefConst.SHUTTER))
 				.intValue();
 		final int maxShutter = 1000;
 		JLabel shutterLabel = new JLabel("快门时间（毫秒）：");
@@ -525,7 +525,7 @@ public class BaikalMainFrame extends JFrame {
 					}
 				}));
 		gridCountText.setValue(((Number) core_
-				.getEntryValue(PrefConst.SEGMENT_COUNT)).intValue());
+				.getEntry(PrefConst.SEGMENT_COUNT)).intValue());
 		gridCountText.setPreferredSize(new Dimension(32, gridCountText
 				.getPreferredSize().height));
 
@@ -761,11 +761,11 @@ public class BaikalMainFrame extends JFrame {
 				// 确定栅格线的数量
 				// 确定纵横线的数量
 				int horzDensity = ((Number) core_
-						.getEntryValue(PrefConst.HORZ_DENSITY)).intValue();
+						.getEntry(PrefConst.HORZ_DENSITY)).intValue();
 				int vertDensity = ((Number) core_
-						.getEntryValue(PrefConst.VERT_DENSITY)).intValue();
+						.getEntry(PrefConst.VERT_DENSITY)).intValue();
 				int segCount = ((Number) core_
-						.getEntryValue(PrefConst.SEGMENT_COUNT)).intValue();
+						.getEntry(PrefConst.SEGMENT_COUNT)).intValue();
 				int nHGrids = horzDensity / segCount;
 				int nVGrids = vertDensity / segCount;
 
@@ -1054,7 +1054,7 @@ public class BaikalMainFrame extends JFrame {
 			}
 		} while (true);
 
-		int segCount = ((Number) core_.getEntryValue(PrefConst.SEGMENT_COUNT))
+		int segCount = ((Number) core_.getEntry(PrefConst.SEGMENT_COUNT))
 				.intValue();
 
 		// 栅格线
@@ -1310,7 +1310,7 @@ public class BaikalMainFrame extends JFrame {
 
 		JLabel operatorLabel = new JLabel("操作员：");
 		JTextField operatorText = new JTextField(
-				(String) core_.getEntryValue(PrefConst.NAME));
+				(String) core_.getEntry(PrefConst.NAME));
 		operatorText.setEditable(false);
 		operatorText.setFocusable(false);
 		operatorText.setMaximumSize(new Dimension(256, operatorText
@@ -1322,7 +1322,7 @@ public class BaikalMainFrame extends JFrame {
 		JFormattedTextField mirrorIdText = new JFormattedTextField(
 				NumberFormat.getIntegerInstance());
 		mirrorIdText.setValue(((Number) core_
-				.getEntryValue(PrefConst.MIRROR_COUNT)).intValue() + 1);
+				.getEntry(PrefConst.MIRROR_COUNT)).intValue() + 1);
 		mirrorIdText.setEditable(false);
 		mirrorIdText.setFocusable(false);
 		mirrorIdText.setPreferredSize(new Dimension(64, mirrorIdText
@@ -1366,12 +1366,12 @@ public class BaikalMainFrame extends JFrame {
 		};
 
 		mirrorWidthText.setValue(((Number) (core_
-				.getEntryValue(PrefConst.MIRROR_WIDTH))).doubleValue());
+				.getEntry(PrefConst.MIRROR_WIDTH))).doubleValue());
 		mirrorWidthText.addPropertyChangeListener("value",
 				mirrorDimensionListener);
 
 		mirrorHeightText.setValue(((Number) (core_
-				.getEntryValue(PrefConst.MIRROR_HEIGHT))).doubleValue());
+				.getEntry(PrefConst.MIRROR_HEIGHT))).doubleValue());
 		mirrorHeightText.addPropertyChangeListener("value",
 				mirrorDimensionListener);
 

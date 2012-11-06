@@ -74,7 +74,7 @@ public class BaikalPrefDialog extends JDialog {
 		gbc.gridx = 0;
 		gbc.gridy = 0;
 
-		int isoSpeed = ((Number) core.getEntryValue(PrefConst.ISO_SPEED))
+		int isoSpeed = ((Number) core.getEntry(PrefConst.ISO_SPEED))
 				.intValue();
 		JLabel isoLabel = new JLabel(String.format("%s %d", "感光度：ISO ",
 				isoSpeed));
@@ -193,14 +193,14 @@ public class BaikalPrefDialog extends JDialog {
 		for (String cam : camNames) {
 			camListModel.addElement(cam);
 		}
-		camJList.setSelectedValue(core.getEntryValue(PrefConst.CAMERA_MODEL),
+		camJList.setSelectedValue(core.getEntry(PrefConst.CAMERA_MODEL),
 				true);
 
 		String[] lensNames = spDevices.get(PrefConst.LENS_LIST);
 		for (String lens : lensNames) {
 			lensListModel.addElement(lens);
 		}
-		lensJList.setSelectedValue(core.getEntryValue(PrefConst.LENS_MODEL),
+		lensJList.setSelectedValue(core.getEntry(PrefConst.LENS_MODEL),
 				true);
 
 		return devListPanel;

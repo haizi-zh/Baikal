@@ -88,15 +88,11 @@ public class BaikalProcParam extends JFrame {
 	 * @return
 	 */
 	private JPanel createMarkerConfig() {
-		final HashMap<String, Object> pref = BaikalCore.getInstance()
-				.getPrefData();
-
 		final int DEFAULT_FIELD_WIDTH = 48;
-
+		final BaikalCore core = BaikalCore.getInstance();
 		// 阈值
 		@SuppressWarnings("unchecked")
-		ArrayList<Number> thrdList = (ArrayList<Number>) pref
-				.get(PrefConst.THRESHOLD);
+		ArrayList<Number> thrdList = (ArrayList<Number>) core.getEntry(PrefConst.THRESHOLD);
 		int thrd = thrdList.get(0).intValue();
 		JLabel thrdLabel = new JLabel(res_.getString("ThresholdParam"));
 		final JFormattedTextField thrdField = new JFormattedTextField(
@@ -109,8 +105,7 @@ public class BaikalProcParam extends JFrame {
 
 		// 平滑窗口大小
 		@SuppressWarnings("unchecked")
-		final ArrayList<Number> alWinSize = (ArrayList<Number>) pref
-				.get(PrefConst.SMOOTH_WINDOW);
+		final ArrayList<Number> alWinSize = (ArrayList<Number>) core.getEntry(PrefConst.SMOOTH_WINDOW);
 		int winsize = alWinSize.get(0).intValue();
 		JLabel smoothWinSizeLabel = new JLabel(res_.getString("SmoothWinSize"));
 		final JFormattedTextField smoothWinSizeField = new JFormattedTextField(
@@ -123,8 +118,7 @@ public class BaikalProcParam extends JFrame {
 
 		// Gaussian平滑参数
 		@SuppressWarnings("unchecked")
-		final ArrayList<Number> alParam = (ArrayList<Number>) pref
-				.get(PrefConst.SMOOTH_PARAM);
+		final ArrayList<Number> alParam = (ArrayList<Number>) core.getEntry(PrefConst.SMOOTH_PARAM);
 		double smoothParam = alParam.get(0).doubleValue();
 		JLabel smoothParamLabel = new JLabel(res_.getString("SmoothParam"));
 		final JFormattedTextField smoothParamField = new JFormattedTextField(
@@ -134,7 +128,7 @@ public class BaikalProcParam extends JFrame {
 				Double.MAX_VALUE, Double.class));
 
 		// Hough变换
-		double houghDp = ((Number) pref.get(PrefConst.HOUGH_CIRCLE_DP))
+		double houghDp = ((Number) core.getEntry(PrefConst.HOUGH_CIRCLE_DP))
 				.doubleValue();
 		JLabel houghDpLabel = new JLabel(res_.getString("HoughDp"));
 		final JFormattedTextField dpField = new JFormattedTextField(
@@ -145,8 +139,7 @@ public class BaikalProcParam extends JFrame {
 		dpField.setPreferredSize(new Dimension(DEFAULT_FIELD_WIDTH, dpField
 				.getPreferredSize().height));
 
-		double houghMinDist = ((Number) pref
-				.get(PrefConst.HOUGH_CIRCLE_MIN_DIST)).doubleValue();
+		double houghMinDist = ((Number) core.getEntry(PrefConst.HOUGH_CIRCLE_MIN_DIST)).doubleValue();
 		JLabel houghMinDistLabel = new JLabel(res_.getString("HoughMinDist"));
 		final JFormattedTextField minDistField = new JFormattedTextField(
 				NumberFormat.getNumberInstance());
@@ -156,8 +149,7 @@ public class BaikalProcParam extends JFrame {
 		minDistField.setPreferredSize(new Dimension(DEFAULT_FIELD_WIDTH,
 				minDistField.getPreferredSize().height));
 
-		double houghCanny = ((Number) pref
-				.get(PrefConst.HOUGH_CIRCLE_HIGH_THRESHOLD)).doubleValue();
+		double houghCanny = ((Number) core.getEntry(PrefConst.HOUGH_CIRCLE_HIGH_THRESHOLD)).doubleValue();
 		JLabel houghCannyLabel = new JLabel(
 				res_.getString("HoughCannyThreshold"));
 		final JFormattedTextField cannyThrdField = new JFormattedTextField(
@@ -168,8 +160,7 @@ public class BaikalProcParam extends JFrame {
 		cannyThrdField.setPreferredSize(new Dimension(DEFAULT_FIELD_WIDTH,
 				cannyThrdField.getPreferredSize().height));
 
-		double houghAccThrd = ((Number) pref
-				.get(PrefConst.HOUGH_CIRCLE_ACC_THRESHOLD)).doubleValue();
+		double houghAccThrd = ((Number) core.getEntry(PrefConst.HOUGH_CIRCLE_ACC_THRESHOLD)).doubleValue();
 		JLabel houghAccThrdLabel = new JLabel(
 				res_.getString("HoughAccThreshold"));
 		final JFormattedTextField accThrdField = new JFormattedTextField(
@@ -180,8 +171,7 @@ public class BaikalProcParam extends JFrame {
 		accThrdField.setPreferredSize(new Dimension(DEFAULT_FIELD_WIDTH,
 				accThrdField.getPreferredSize().height));
 
-		int houghMinRadius = ((Number) pref
-				.get(PrefConst.HOUGH_CIRCLE_MIN_RADIUS)).intValue();
+		int houghMinRadius = ((Number) core.getEntry(PrefConst.HOUGH_CIRCLE_MIN_RADIUS)).intValue();
 		JLabel minRadiusLabel = new JLabel(res_.getString("HoughMinRadius"));
 		final JFormattedTextField minRadiusField = new JFormattedTextField(
 				NumberFormat.getIntegerInstance());
@@ -191,8 +181,7 @@ public class BaikalProcParam extends JFrame {
 		minRadiusField.setPreferredSize(new Dimension(DEFAULT_FIELD_WIDTH,
 				minRadiusField.getPreferredSize().height));
 
-		int houghMaxRadius = ((Number) pref
-				.get(PrefConst.HOUGH_CIRCLE_MAX_RADIUS)).intValue();
+		int houghMaxRadius = ((Number) core.getEntry(PrefConst.HOUGH_CIRCLE_MAX_RADIUS)).intValue();
 		JLabel maxRadiusLabel = new JLabel(res_.getString("HoughMaxRadius"));
 		final JFormattedTextField maxRadiusField = new JFormattedTextField(
 				NumberFormat.getIntegerInstance());
@@ -225,26 +214,25 @@ public class BaikalProcParam extends JFrame {
 				int maxRadius = ((Number) maxRadiusField.getValue()).intValue();
 
 				@SuppressWarnings("unchecked")
-				ArrayList<Number> thrdList = (ArrayList<Number>) pref
-						.get(PrefConst.THRESHOLD);
+				ArrayList<Number> thrdList = (ArrayList<Number>) core.getEntry(PrefConst.THRESHOLD);
 				// 默认改变的只有0,2两个通道的阈值
 				thrdList.set(0, (double) thrd);
 				thrdList.set(2, (double) thrd);
-				pref.put(PrefConst.THRESHOLD, thrdList);
+				core.putEntry(PrefConst.THRESHOLD, thrdList);
 				ArrayList<Number> alWinSize = new ArrayList<Number>();
 				alWinSize.add(winsize);
 				alWinSize.add(winsize);
-				pref.put(PrefConst.SMOOTH_WINDOW, alWinSize);
+				core.putEntry(PrefConst.SMOOTH_WINDOW, alWinSize);
 				ArrayList<Number> alParam = new ArrayList<Number>();
 				alParam.add(smoothParam);
 				alParam.add(smoothParam);
-				pref.put(PrefConst.SMOOTH_PARAM, alParam);
-				pref.put(PrefConst.HOUGH_CIRCLE_DP, dp);
-				pref.put(PrefConst.HOUGH_CIRCLE_MIN_DIST, minDist);
-				pref.put(PrefConst.HOUGH_CIRCLE_HIGH_THRESHOLD, cannyThrd);
-				pref.put(PrefConst.HOUGH_CIRCLE_ACC_THRESHOLD, accThrd);
-				pref.put(PrefConst.HOUGH_CIRCLE_MIN_RADIUS, minRadius);
-				pref.put(PrefConst.HOUGH_CIRCLE_MAX_RADIUS, maxRadius);
+				core.putEntry(PrefConst.SMOOTH_PARAM, alParam);
+				core.putEntry(PrefConst.HOUGH_CIRCLE_DP, dp);
+				core.putEntry(PrefConst.HOUGH_CIRCLE_MIN_DIST, minDist);
+				core.putEntry(PrefConst.HOUGH_CIRCLE_HIGH_THRESHOLD, cannyThrd);
+				core.putEntry(PrefConst.HOUGH_CIRCLE_ACC_THRESHOLD, accThrd);
+				core.putEntry(PrefConst.HOUGH_CIRCLE_MIN_RADIUS, minRadius);
+				core.putEntry(PrefConst.HOUGH_CIRCLE_MAX_RADIUS, maxRadius);
 
 				// 自动预览
 				if (autoPreview_
@@ -284,26 +272,25 @@ public class BaikalProcParam extends JFrame {
 				int maxRadius = ((Number) maxRadiusField.getValue()).intValue();
 
 				@SuppressWarnings("unchecked")
-				ArrayList<Number> thrdList = (ArrayList<Number>) pref
-						.get(PrefConst.THRESHOLD);
+				ArrayList<Number> thrdList = (ArrayList<Number>) core.getEntry(PrefConst.THRESHOLD);
 				// 默认改变的只有0,2两个通道的阈值
 				thrdList.set(0, (double) thrd);
 				thrdList.set(2, (double) thrd);
-				pref.put(PrefConst.THRESHOLD, thrdList);
+				core.putEntry(PrefConst.THRESHOLD, thrdList);
 				ArrayList<Number> alWinSize = new ArrayList<Number>();
 				alWinSize.add(winsize);
 				alWinSize.add(winsize);
-				pref.put(PrefConst.SMOOTH_WINDOW, alWinSize);
+				core.putEntry(PrefConst.SMOOTH_WINDOW, alWinSize);
 				ArrayList<Number> alParam = new ArrayList<Number>();
 				alParam.add(smoothParam);
 				alParam.add(smoothParam);
-				pref.put(PrefConst.SMOOTH_PARAM, alParam);
-				pref.put(PrefConst.HOUGH_CIRCLE_DP, dp);
-				pref.put(PrefConst.HOUGH_CIRCLE_MIN_DIST, minDist);
-				pref.put(PrefConst.HOUGH_CIRCLE_HIGH_THRESHOLD, cannyThrd);
-				pref.put(PrefConst.HOUGH_CIRCLE_ACC_THRESHOLD, accThrd);
-				pref.put(PrefConst.HOUGH_CIRCLE_MIN_RADIUS, minRadius);
-				pref.put(PrefConst.HOUGH_CIRCLE_MAX_RADIUS, maxRadius);
+				core.putEntry(PrefConst.SMOOTH_PARAM, alParam);
+				core.putEntry(PrefConst.HOUGH_CIRCLE_DP, dp);
+				core.putEntry(PrefConst.HOUGH_CIRCLE_MIN_DIST, minDist);
+				core.putEntry(PrefConst.HOUGH_CIRCLE_HIGH_THRESHOLD, cannyThrd);
+				core.putEntry(PrefConst.HOUGH_CIRCLE_ACC_THRESHOLD, accThrd);
+				core.putEntry(PrefConst.HOUGH_CIRCLE_MIN_RADIUS, minRadius);
+				core.putEntry(PrefConst.HOUGH_CIRCLE_MAX_RADIUS, maxRadius);
 
 				// 自动预览
 				if (autoPreview_

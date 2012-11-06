@@ -897,7 +897,7 @@ public class BaikalCore {
 //		return prefData_;
 //	}
 	
-	public Object getEntryValue(String key){
+	public Object getEntry(String key){
 		return prefData_.get(key);
 	}
 	

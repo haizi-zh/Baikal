@@ -46,9 +46,9 @@ public class BaikalGridPanel extends JPanel {
 	private void renderMarkers(Graphics2D g2d) {
 		BaikalCore core = BaikalCore.getInstance();
 		Insets insets = getInsets();
-		int margin = ((Number) core.getPrefData().get(PrefConst.MARKER_MARGIN))
+		int margin = ((Number) core.getEntry(PrefConst.MARKER_MARGIN))
 				.intValue();
-		int radius = ((Number) core.getPrefData().get(PrefConst.MARKER_RADIUS))
+		int radius = ((Number) core.getEntry(PrefConst.MARKER_RADIUS))
 				.intValue();
 		int diameter = 2 * radius;
 
@@ -92,12 +92,17 @@ public class BaikalGridPanel extends JPanel {
 	}
 
 	private void renderGridLines(Graphics2D g2d) {
-		HashMap<String, Object> pref = BaikalCore.getInstance().getPrefData();
-		int densityX = ((Number) pref.get(PrefConst.HORZ_DENSITY)).intValue();
-		int densityY = ((Number) pref.get(PrefConst.VERT_DENSITY)).intValue();
-		int margin = ((Number) pref.get(PrefConst.MARKER_MARGIN)).intValue();
-		int segCount = ((Number) pref.get(PrefConst.SEGMENT_COUNT)).intValue();
-		int radius = ((Number) pref.get(PrefConst.MARKER_RADIUS)).intValue();
+		BaikalCore core = BaikalCore.getInstance();
+		int densityX = ((Number) core.getEntry(PrefConst.HORZ_DENSITY))
+				.intValue();
+		int densityY = ((Number) core.getEntry(PrefConst.VERT_DENSITY))
+				.intValue();
+		int margin = ((Number) core.getEntry(PrefConst.MARKER_MARGIN))
+				.intValue();
+		int segCount = ((Number) core.getEntry(PrefConst.SEGMENT_COUNT))
+				.intValue();
+		int radius = ((Number) core.getEntry(PrefConst.MARKER_RADIUS))
+				.intValue();
 
 		int originalVertOffset = vertOffset_;
 		int originalHorzOffset = horzOffset_;
