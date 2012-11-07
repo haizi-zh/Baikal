@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 
 import javax.imageio.ImageIO;
@@ -98,7 +99,7 @@ public class BaikalFileCamera extends BaikalAbstractCamera {
 	}
 
 	@Override
-	public void releaseImage(BufferedImage img) throws InterruptedException {
+	public void releaseImage(BufferedImage img) {
 	}
 
 	@Override
@@ -107,12 +108,8 @@ public class BaikalFileCamera extends BaikalAbstractCamera {
 	}
 
 	@Override
-	public void setResolution(int resType) throws BaikalCameraException {
-	}
-
-	public void setResolution(int width, int height) {
-		width_ = width;
-		height_ = height;
+	public void setResolution(Object resType) throws BaikalCameraException {
+		throw BaikalCameraException.create(BaikalCameraErrorDesc.NOT_SUPPORTED);
 	}
 
 	public void resetSeries() {
@@ -136,8 +133,14 @@ public class BaikalFileCamera extends BaikalAbstractCamera {
 	}
 
 	@Override
-	public int exposureMs() throws BaikalCameraException {
+	public int getExposureMs() throws BaikalCameraException {
 		return expMs_;
 	}
 
+	@Override
+	public HashMap<Object, ArrayList<Integer>> getResolutionList()
+			throws BaikalCameraException {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

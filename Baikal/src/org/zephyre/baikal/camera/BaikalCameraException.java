@@ -2,35 +2,49 @@ package org.zephyre.baikal.camera;
 
 public class BaikalCameraException extends Exception {
 	public enum BaikalCameraErrorDesc {
-		CONNECTION_FAILURE, CAMERA_NOT_CONNECTED, CAMERA_BUSY, INVALID_ARGUMENT, UNKNWON
+		CONNECTION_FAILURE, CAMERA_NOT_CONNECTED, CAMERA_BUSY, BUFFER_UNDER_FLOW, 
+		INVALID_ARGUMENT, NOT_SUPPORTED, UNKNWON
 	}
 
-	private BaikalCameraErrorDesc desc;
-
-	public BaikalCameraException() {
-	}
-	
-	public BaikalCameraException(BaikalCameraErrorDesc desc){
-		setDesc(desc);
+	public static BaikalCameraException create(BaikalCameraErrorDesc desc) {
+		return new BaikalCameraException(desc);
 	}
 
-	public BaikalCameraException(String message) {
+	public static BaikalCameraException create() {
+		return new BaikalCameraException();
+	}
+
+	public static BaikalCameraException create(BaikalCameraErrorDesc desc,
+			String message) {
+		return new BaikalCameraException(desc, message);
+	}
+
+	public static BaikalCameraException create(BaikalCameraErrorDesc desc,
+			String message, Throwable cause) {
+		return new BaikalCameraException(desc, message, cause);
+	}
+
+	private BaikalCameraErrorDesc desc_;
+
+	protected BaikalCameraException(BaikalCameraErrorDesc desc) {
+		desc_ = desc;
+	}
+
+	protected BaikalCameraException(BaikalCameraErrorDesc desc, String message) {
 		super(message);
+		desc_ = desc;
 	}
 
-	public BaikalCameraException(String message, Throwable cause) {
+	protected BaikalCameraException(BaikalCameraErrorDesc desc, String message,
+			Throwable cause) {
 		super(message, cause);
+		desc_ = desc;
 	}
 
-	public BaikalCameraException(Throwable cause) {
-		super(cause);
+	protected BaikalCameraException() {
 	}
 
-	public void setDesc(BaikalCameraErrorDesc val) {
-		desc = val;
-	}
-
-	public BaikalCameraErrorDesc desc() {
-		return desc;
+	public BaikalCameraErrorDesc getDescription() {
+		return desc_;
 	}
 }

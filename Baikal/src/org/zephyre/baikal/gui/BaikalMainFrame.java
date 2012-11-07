@@ -242,8 +242,7 @@ public class BaikalMainFrame extends JFrame {
 		// The main panel for controllers
 		basicPanel.add(createControllerPanel());
 
-		setTitle("Baikal光学镜面检测系统 - "
-				+ (String) core_.getEntry(PrefConst.NAME));
+		setTitle("Baikal光学镜面检测系统 - " + (String) core_.getEntry(PrefConst.NAME));
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		pack();
 		this.setMinimumSize(this.getPreferredSize());
@@ -279,25 +278,27 @@ public class BaikalMainFrame extends JFrame {
 				BufferedImage bi = null;
 				BufferedImage bi2 = null;
 				try {
-					int index = (int) (cnt_ % (2 * segCount + 1));
-					HashMap<String, Object> optData = cam.getOptData();
-					if (index == 0) {
-						// 显示markers
-						optData.put("DrawMarkers", true);
-						optData.put("DrawHorzGridLines", false);
-						optData.put("DrawVertGridLines", false);
-					} else if (index <= segCount) {
-						// 显示水平栅格
-						optData.put("DrawMarkers", false);
-						optData.put("DrawHorzGridLines", true);
-						optData.put("DrawVertGridLines", false);
-						optData.put("HorzIndex", index - 1);
-					} else {
-						// 显示垂直栅格
-						optData.put("DrawMarkers", false);
-						optData.put("DrawHorzGridLines", false);
-						optData.put("DrawVertGridLines", true);
-						optData.put("VertIndex", index - segCount - 1);
+					if (cam instanceof BaikalSimCamera) {
+						BaikalSimCamera simcam = (BaikalSimCamera) cam;
+						int index = (int) (cnt_ % (2 * segCount + 1));
+						if (index == 0) {
+							// 显示markers
+							simcam.setDrawMarkers(true);
+							simcam.setDrawHorzGridLines(false);
+							simcam.setDrawVertGridLines(false);
+						} else if (index <= segCount) {
+							// 显示水平栅格
+							simcam.setDrawMarkers(false);
+							simcam.setDrawHorzGridLines(true);
+							simcam.setDrawVertGridLines(false);
+							simcam.setHorzGridLineIndex(index - 1);
+						} else {
+							// 显示垂直栅格
+							simcam.setDrawMarkers(false);
+							simcam.setDrawHorzGridLines(false);
+							simcam.setDrawVertGridLines(true);
+							simcam.setVertGridLineIndex(index - segCount - 1);
+						}
 					}
 					bi = cam.snapshotAndWait();
 					bi2 = copyImage(bi, imageStorage_.poll());
@@ -311,7 +312,8 @@ public class BaikalMainFrame extends JFrame {
 					if (bi != null) {
 						try {
 							cam.releaseImage(bi);
-						} catch (InterruptedException e) {
+						} catch (BaikalCameraException e) {
+							e.printStackTrace();
 						}
 					}
 				}
@@ -416,8 +418,7 @@ public class BaikalMainFrame extends JFrame {
 		final JComboBox<String> camListComboBox = new JComboBox<String>(
 				devList.get(PrefConst.CAMERA_LIST));
 		camListComboBox.setSelectedItem(null);
-		camListComboBox.setSelectedItem(core_
-				.getEntry(PrefConst.CAMERA_MODEL));
+		camListComboBox.setSelectedItem(core_.getEntry(PrefConst.CAMERA_MODEL));
 		camListComboBox.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -430,8 +431,7 @@ public class BaikalMainFrame extends JFrame {
 		final JComboBox<String> lensListComboBox = new JComboBox<String>(
 				devList.get(PrefConst.LENS_LIST));
 		lensListComboBox.setSelectedItem(null);
-		lensListComboBox.setSelectedItem(core_
-				.getEntry(PrefConst.LENS_MODEL));
+		lensListComboBox.setSelectedItem(core_.getEntry(PrefConst.LENS_MODEL));
 		lensListComboBox.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -454,8 +454,7 @@ public class BaikalMainFrame extends JFrame {
 		camConnectionPanel.add(Box.createHorizontalGlue());
 		camConnectionPanel.add(camConnectButton_);
 
-		int shutter = ((Number) core_.getEntry(PrefConst.SHUTTER))
-				.intValue();
+		int shutter = ((Number) core_.getEntry(PrefConst.SHUTTER)).intValue();
 		final int maxShutter = 1000;
 		JLabel shutterLabel = new JLabel("快门时间（毫秒）：");
 		final JSlider shutterSlider = new JSlider(1, maxShutter);
@@ -768,31 +767,31 @@ public class BaikalMainFrame extends JFrame {
 					BufferedImage bi = null;
 					BufferedImage bi2 = null;
 					try {
-						// int index = (int) (cnt % (nHGrids + nVGrids + 1));
-						int index = (int) (cnt % (2 * segCount + 1));
-						HashMap<String, Object> optData = cam.getOptData();
-						if (index == 0) {
-							// 显示markers
-							optData.put("DrawMarkers", true);
-							optData.put("DrawHorzGridLines", false);
-							optData.put("DrawVertGridLines", false);
-						} else if (index <= segCount) {
-							// 显示水平栅格
-							optData.put("DrawMarkers", false);
-							optData.put("DrawHorzGridLines", true);
-							optData.put("DrawVertGridLines", false);
-							optData.put("HorzIndex", index - 1);
-						} else {
-							// 显示垂直栅格
-							optData.put("DrawMarkers", false);
-							optData.put("DrawHorzGridLines", false);
-							optData.put("DrawVertGridLines", true);
-							optData.put("VertIndex", index - segCount - 1);
+						if (cam instanceof BaikalSimCamera) {
+							BaikalSimCamera simcam = (BaikalSimCamera) cam;
+							int index = (int) (cnt % (2 * segCount + 1));
+							if (index == 0) {
+								// 显示markers
+								simcam.setDrawMarkers(true);
+								simcam.setDrawHorzGridLines(false);
+								simcam.setDrawVertGridLines(false);
+							} else if (index <= segCount) {
+								// 显示水平栅格
+								simcam.setDrawMarkers(false);
+								simcam.setDrawHorzGridLines(true);
+								simcam.setDrawVertGridLines(false);
+								simcam.setHorzGridLineIndex(index - 1);
+							} else {
+								// 显示垂直栅格
+								simcam.setDrawMarkers(false);
+								simcam.setDrawHorzGridLines(false);
+								simcam.setDrawVertGridLines(true);
+								simcam.setVertGridLineIndex(index - segCount
+										- 1);
+							}
 						}
 						bi = cam.snapshotAndWait();
 						bi2 = copyImage(bi, imageStorage_.poll());
-						// BaikalCore.log(String.format("camTask: acquired %d",
-						// cnt));
 						cnt++;
 					} catch (BaikalCameraException e) {
 						e.printStackTrace();
@@ -800,14 +799,13 @@ public class BaikalMainFrame extends JFrame {
 						Thread.currentThread().interrupt();
 					} finally {
 						if (bi != null) {
-							boolean bv = Thread.interrupted();
-							// ReleaseImage的时候，需要先把interrupted状态临时清空
 							try {
 								cam.releaseImage(bi);
-							} catch (InterruptedException e) {
-							}
-							if (bv)
+							} catch (BaikalCameraException e) {
+								// 出错，终止线程
+								e.printStackTrace();
 								Thread.currentThread().interrupt();
+							}
 						}
 					}
 					if (bi2 != null) {
@@ -885,11 +883,12 @@ public class BaikalMainFrame extends JFrame {
 		if (bufImage_ == null)
 			return;
 
-		imagePanel_.drawImage(copyImage(bufImage_,null), null, null, null);
-//		HashMap<String, Object> hm = core_.measureMarkers(bufImage_, 2);
-//		BufferedImage bufProcImage = (BufferedImage) hm.get("ProcessedImage");
-//		double[][] markerList = (double[][]) hm.get("MarkerList");
-//		imagePanel_.drawImage(bufProcImage, markerList, null, null);
+		imagePanel_.drawImage(copyImage(bufImage_, null), null, null, null);
+		// HashMap<String, Object> hm = core_.measureMarkers(bufImage_, 2);
+		// BufferedImage bufProcImage = (BufferedImage)
+		// hm.get("ProcessedImage");
+		// double[][] markerList = (double[][]) hm.get("MarkerList");
+		// imagePanel_.drawImage(bufProcImage, markerList, null, null);
 	}
 
 	/**
@@ -979,14 +978,11 @@ public class BaikalMainFrame extends JFrame {
 					stopAcq[0] = true;
 				} finally {
 					if (bi != null) {
-						boolean bv = Thread.interrupted();
-						// ReleaseImage的时候，需要先把interrupted状态临时清空
 						try {
 							cam.releaseImage(bi);
-						} catch (InterruptedException e) {
+						} catch (BaikalCameraException e) {
+							e.printStackTrace();
 						}
-						if (bv)
-							Thread.currentThread().interrupt();
 					}
 				}
 			}
@@ -1021,12 +1017,13 @@ public class BaikalMainFrame extends JFrame {
 			return;
 		do {
 			BaikalAbstractCamera cam = core_.getCamera();
-			HashMap<String, Object> optData = cam.getOptData();
-			optData.put("DrawMarkers", true);
-			optData.put("DrawHorzGridLines", false);
-			optData.put("DrawVertGridLines", false);
-
-			if (cam instanceof BaikalFileCamera) {
+			if (cam instanceof BaikalSimCamera) {
+				BaikalSimCamera simcam = (BaikalSimCamera) cam;
+				// 显示markers
+				simcam.setDrawMarkers(true);
+				simcam.setDrawHorzGridLines(false);
+				simcam.setDrawVertGridLines(false);
+			} else if (cam instanceof BaikalFileCamera) {
 				BaikalFileCamera fc = (BaikalFileCamera) cam;
 				fc.resetSeries();
 			}
@@ -1070,14 +1067,15 @@ public class BaikalMainFrame extends JFrame {
 
 			do {
 				BaikalAbstractCamera cam = core_.getCamera();
-				HashMap<String, Object> optData = cam.getOptData();
-				optData.put("DrawMarkers", false);
-				optData.put("DrawHorzGridLines", true);
-				optData.put("DrawVertGridLines", false);
-				optData.put("HorzIndex", i);
-
 				int pos = 0;
-				if (cam instanceof BaikalFileCamera) {
+				if (cam instanceof BaikalSimCamera) {
+					BaikalSimCamera simcam = (BaikalSimCamera) cam;
+					// 显示水平栅格线
+					simcam.setDrawMarkers(false);
+					simcam.setDrawHorzGridLines(true);
+					simcam.setDrawVertGridLines(false);
+					simcam.setHorzGridLineIndex(i);
+				} else if (cam instanceof BaikalFileCamera) {
 					BaikalFileCamera fc = (BaikalFileCamera) cam;
 					pos = fc.getPos();
 				}
@@ -1126,14 +1124,15 @@ public class BaikalMainFrame extends JFrame {
 
 			do {
 				BaikalAbstractCamera cam = core_.getCamera();
-				HashMap<String, Object> optData = cam.getOptData();
-				optData.put("DrawMarkers", false);
-				optData.put("DrawHorzGridLines", false);
-				optData.put("DrawVertGridLines", true);
-				optData.put("VertIndex", i);
-
 				int pos = 0;
-				if (cam instanceof BaikalFileCamera) {
+				if (cam instanceof BaikalSimCamera) {
+					BaikalSimCamera simcam = (BaikalSimCamera) cam;
+					// 显示垂直栅格线
+					simcam.setDrawMarkers(false);
+					simcam.setDrawHorzGridLines(false);
+					simcam.setDrawVertGridLines(true);
+					simcam.setVertGridLineIndex(i);
+				} else if (cam instanceof BaikalFileCamera) {
 					BaikalFileCamera fc = (BaikalFileCamera) cam;
 					pos = fc.getPos();
 				}
@@ -1316,8 +1315,8 @@ public class BaikalMainFrame extends JFrame {
 		JLabel mirrorIdLabel = new JLabel("镜面编号：");
 		JFormattedTextField mirrorIdText = new JFormattedTextField(
 				NumberFormat.getIntegerInstance());
-		mirrorIdText.setValue(((Number) core_
-				.getEntry(PrefConst.MIRROR_COUNT)).intValue() + 1);
+		mirrorIdText.setValue(((Number) core_.getEntry(PrefConst.MIRROR_COUNT))
+				.intValue() + 1);
 		mirrorIdText.setEditable(false);
 		mirrorIdText.setFocusable(false);
 		mirrorIdText.setPreferredSize(new Dimension(64, mirrorIdText

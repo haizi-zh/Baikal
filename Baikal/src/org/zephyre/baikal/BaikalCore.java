@@ -522,11 +522,15 @@ public class BaikalCore {
 
 	/**
 	 * 初始化BaikalCore
+	 * 
 	 * @param userName
 	 * @return
-	 * @throws JsonParseException 配置文件解析错误。
-	 * @throws BaikalCameraException 相机初始化错误。
-	 * @throws IOException IO错误。
+	 * @throws JsonParseException
+	 *             配置文件解析错误。
+	 * @throws BaikalCameraException
+	 *             相机初始化错误。
+	 * @throws IOException
+	 *             IO错误。
 	 */
 	public static BaikalCore createInstance_(String userName)
 			throws JsonParseException, BaikalCameraException, IOException {
@@ -733,8 +737,7 @@ public class BaikalCore {
 	 * @throws IOException
 	 *             写文件IO异常。
 	 */
-	public static void writePref(Map<String, Object> pref)
-			throws IOException {
+	public static void writePref(Map<String, Object> pref) throws IOException {
 		String userName = (String) pref.get(PrefConst.NAME);
 		BufferedWriter writer = null;
 		try {
@@ -855,19 +858,39 @@ public class BaikalCore {
 		// cam.setResolution(4368, 2912);
 		// cam_ = cam;
 
-		cam_ = BaikalSimCamera.getInstance();
-		HashMap<String, Object> optData = cam_.getOptData();
-		optData.put("DrawMarkers", false);
-		optData.put("DrawHorzGridLines", false);
-		optData.put("DrawVertGridLines", false);
-		optData.put("HorzIndex", 0);
-		optData.put("VertIndex", 0);
+		cam_ = getSimCamera();
 
 		// OpenCV相关
 		cvStorage_ = cvCreateMemStorage(0);
 		imagesList = new IplImage[4];
 
 		instance_ = this;
+	}
+
+	/**
+	 * @throws BaikalCameraException
+	 */
+	private BaikalSimCamera getSimCamera() throws BaikalCameraException {
+		BaikalSimCamera cam = BaikalSimCamera.getInstance();
+		cam.connect();
+		cam.setDrawMarkers(false);
+		cam.setDrawHorzGridLines(false);
+		cam.setDrawVertGridLines(false);
+		cam.setHorzGridLineIndex(0);
+		cam.setVertGridLineIndex(0);
+		cam.setExposureTime(((Number) prefData_.get(PrefConst.SHUTTER))
+				.intValue());
+		cam.setMarkerMargin(((Number) prefData_.get(PrefConst.MARKER_MARGIN))
+				.intValue());
+		cam.setMarkerRadius(((Number) prefData_.get(PrefConst.MARKER_RADIUS))
+				.intValue());
+		cam.setGridLineDensity(
+				((Number) prefData_.get(PrefConst.HORZ_DENSITY)).intValue(),
+				((Number) prefData_.get(PrefConst.VERT_DENSITY)).intValue());
+		cam.setSegmentCount(((Number) prefData_.get(PrefConst.SEGMENT_COUNT))
+				.intValue());
+		cam.setResolution(prefData_.get(PrefConst.RESOLUTION));
+		return cam;
 	}
 
 	/**
@@ -890,18 +913,18 @@ public class BaikalCore {
 		return gd;
 	}
 
-//	/**
-//	 * Get the user-specific configuration.
-//	 */
-//	public Map<String, Object> getPrefData() {
-//		return prefData_;
-//	}
-	
-	public Object getEntry(String key){
+	// /**
+	// * Get the user-specific configuration.
+	// */
+	// public Map<String, Object> getPrefData() {
+	// return prefData_;
+	// }
+
+	public Object getEntry(String key) {
 		return prefData_.get(key);
 	}
-	
-	public void putEntry(String key, Object value){
+
+	public void putEntry(String key, Object value) {
 		prefData_.put(key, value);
 	}
 
@@ -941,7 +964,7 @@ public class BaikalCore {
 	 * Get the exposure time in millisecond.
 	 */
 	public int exposureTime() throws BaikalCameraException {
-		return cam_.exposureMs();
+		return cam_.getExposureMs();
 	}
 
 	/**

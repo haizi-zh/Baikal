@@ -1,13 +1,14 @@
 package org.zephyre.baikal.camera;
 
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 public abstract class BaikalAbstractCamera {
 	public abstract void connect() throws BaikalCameraException;
 
-	public abstract void disconnect();
+	public abstract void disconnect() throws BaikalCameraException;
 
 	/*
 	 * Get the size in bytes which is needed during a capture.
@@ -33,22 +34,32 @@ public abstract class BaikalAbstractCamera {
 	 * 将获取到的BufferedImage归还到相机的内部缓冲区序列中。
 	 * 
 	 * @param img
-	 * @throws InterruptedException
+	 * @throws BaikalCameraException
 	 */
 	public abstract void releaseImage(BufferedImage img)
-			throws InterruptedException;
+			throws BaikalCameraException;
 
 	/*
 	 * If the camera has been connected to PC
 	 */
 	public abstract boolean isConnected();
 
-	/*
+	/**
 	 * Set the image size
 	 * 
-	 * @param resType The resolution id, starts from 1
+	 * @param resType
+	 *            The resolution id, starts from 1
 	 */
-	public abstract void setResolution(int resType)
+	public abstract void setResolution(Object resType)
+			throws BaikalCameraException;
+
+	/**
+	 * Get supported resolutions
+	 * 
+	 * @return
+	 * @throws BaikalCameraException
+	 */
+	public abstract HashMap<Object, ArrayList<Integer>> getResolutionList()
 			throws BaikalCameraException;
 
 	/*
@@ -69,14 +80,17 @@ public abstract class BaikalAbstractCamera {
 	/*
 	 * Get the exposure time in millisecond.
 	 */
-	public abstract int exposureMs() throws BaikalCameraException;
+	public abstract int getExposureMs() throws BaikalCameraException;
 
-	/**
-	 * misc数据
-	 */
-	private HashMap<String, Object> optData_ = new HashMap<String, Object>();
+//	/**
+//	 * misc数据
+//	 */
+//	protected HashMap<String, Object> optData_ = new HashMap<String, Object>();
 
-	public HashMap<String, Object> getOptData() {
-		return optData_;
-	}
+//	public HashMap<String, Object> getOptData() {
+//		HashMap<String, Object> data = new HashMap<String, Object>();
+//		for (String key : optData_.keySet())
+//			data.put(key, optData_.get(key));
+//		return data;
+//	}
 }

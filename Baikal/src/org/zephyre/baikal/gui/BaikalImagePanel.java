@@ -8,46 +8,17 @@ import java.awt.Cursor;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
-import java.awt.LayoutManager;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
-import java.awt.color.ColorSpace;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
-import java.awt.Image;
-import java.awt.image.ColorModel;
-import java.awt.image.ComponentColorModel;
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferByte;
-import java.awt.image.DataBufferInt;
-import java.awt.image.IndexColorModel;
-import java.awt.image.PixelInterleavedSampleModel;
-import java.awt.image.Raster;
-import java.awt.image.SampleModel;
-import java.awt.image.SinglePixelPackedSampleModel;
-import java.awt.image.WritableRaster;
-import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.BitSet;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.concurrent.locks.ReentrantLock;
-
-import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
 import org.zephyre.baikal.BaikalCore;
-import org.zephyre.baikal.GridLineModel;
 
 /**
  * @author Zephyre
