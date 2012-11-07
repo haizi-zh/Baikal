@@ -199,10 +199,8 @@ public class BaikalMainFrame extends JFrame {
 		} catch (BaikalCameraException e) {
 			JOptionPane.showMessageDialog(this, "无法连接到相机，请检查硬件配置是否正常。", "错误",
 					JOptionPane.ERROR_MESSAGE);
-		} catch (JsonParseException e) {
-		} catch (IOException e) {
+			System.exit(0);
 		}
-
 		// measureExec_ = Executors.newCachedThreadPool();
 	}
 
@@ -210,8 +208,7 @@ public class BaikalMainFrame extends JFrame {
 		return instance;
 	}
 
-	private void initUI() throws JsonIOException, JsonSyntaxException,
-			IOException {
+	private void initUI() {
 		initActions();
 		initMenu();
 		initFocusManager();
@@ -274,6 +271,22 @@ public class BaikalMainFrame extends JFrame {
 				BaikalAbstractCamera cam = core_.getCamera();
 				int segCount = ((Number) core_
 						.getEntry(PrefConst.SEGMENT_COUNT)).intValue();
+
+				if (gridFrame_ == null) {
+					gridFrame_ = new BaikalGridFrame();
+					gridFrame_.setDrawMarkers(true);
+					gridFrame_.drawHorzGridLines(true);
+					gridFrame_.drawVertGridLines(true);
+					gridFrame_.displayFullGrids(true);
+					// 移动到预定的位置
+					ArrayList<Number> posSize = (ArrayList<Number>) core_
+							.getEntry(PrefConst.GRID_FRAME_POS_SIZE);
+					gridFrame_.updatePosSize(posSize.get(0).intValue(), posSize
+							.get(1).intValue(), posSize.get(2).intValue(),
+							posSize.get(3).intValue());
+				}
+				gridFrame_.setVisible(true);
+				gridFrame_.repaint();
 
 				BufferedImage bi = null;
 				BufferedImage bi2 = null;
@@ -349,8 +362,15 @@ public class BaikalMainFrame extends JFrame {
 					gridFrame_.drawHorzGridLines(true);
 					gridFrame_.drawVertGridLines(true);
 					gridFrame_.displayFullGrids(true);
+					// 移动到预定的位置
+					BaikalCore core = BaikalCore.getInstance();
+					ArrayList<Integer> posSize = (ArrayList<Integer>) core
+							.getEntry(PrefConst.GRID_FRAME_POS_SIZE);
+					gridFrame_.setLocation(posSize.get(0), posSize.get(1));
+					gridFrame_.setSize(posSize.get(2), posSize.get(3));
 					gridFrame_.setVisible(true);
 					gridFrame_.repaint();
+
 					startPreview();
 					isLive_ = true;
 					putValue(AbstractAction.NAME, "停止");

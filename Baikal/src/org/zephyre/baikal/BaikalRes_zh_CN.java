@@ -9,6 +9,10 @@ public class BaikalRes_zh_CN extends ListResourceBundle {
 			{ "Error", "错误" },
 			{ "AppName", "Baikal光学检测系统" },
 			{ "CameraError","相机错误。"},
+			// 栅格线样本窗口
+			{"GridLinesFrameTitle","栅格线样本"},
+			{"GridLinesFrameSavePos","保存位置和大小"},
+			{"GridLinesFrameRestorePos","重置位置和大小"},
 			// Login
 			{ "NewUser", "新建用户" },
 			{ "RemoveUser", "删除用户" },

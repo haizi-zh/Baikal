@@ -55,7 +55,6 @@ public class ResultImagePanel extends BaikalImagePanel {
 
 	@Override
 	protected void paintComponent(Graphics g) {
-		BaikalCore.log("ResultImage");
 		super.paintComponent(g);
 
 		synchronized (resultLock_) {

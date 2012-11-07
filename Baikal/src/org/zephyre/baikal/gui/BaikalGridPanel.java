@@ -9,6 +9,7 @@ import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -40,7 +41,6 @@ public class BaikalGridPanel extends JPanel {
 	public BaikalGridPanel() {
 		super();
 		setBackground(Color.BLACK);
-		setPreferredSize(new Dimension(800, 480));
 	}
 
 	private void renderMarkers(Graphics2D g2d) {

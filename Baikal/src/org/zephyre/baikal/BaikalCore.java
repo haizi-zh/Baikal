@@ -1,7 +1,9 @@
 package org.zephyre.baikal;
 
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.color.ColorSpace;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
@@ -681,7 +683,7 @@ public class BaikalCore {
 		if (!pref.containsKey(PrefConst.ISO_SPEED))
 			pref.put(PrefConst.ISO_SPEED, 100);
 		if (!pref.containsKey(PrefConst.RESOLUTION))
-			pref.put(PrefConst.RESOLUTION, 1);
+			pref.put(PrefConst.RESOLUTION, Integer.valueOf(1));
 		if (!pref.containsKey(PrefConst.MARKER_RADIUS))
 			pref.put(PrefConst.MARKER_RADIUS, 15);
 		if (!pref.containsKey(PrefConst.SEGMENT_COUNT))
@@ -726,6 +728,18 @@ public class BaikalCore {
 			pref.put(PrefConst.POLYFIT_SEG_COUNT, 20);
 		if (!pref.containsKey(PrefConst.GRID_LINE_THRESHOLD))
 			pref.put(PrefConst.GRID_LINE_THRESHOLD, 0.1);
+		if (!pref.containsKey(PrefConst.GRID_FRAME_POS_SIZE)) {
+			Dimension scrDim = Toolkit.getDefaultToolkit().getScreenSize();
+			int width = 600;
+			int height = 480;
+			int x = (scrDim.width - width) / 2;
+			int y = (scrDim.height - height) / 2;
+			int[] vals = new int[] { x, y, width, height };
+			ArrayList<Integer> posSize = new ArrayList<Integer>();
+			for (int v : vals)
+				posSize.add(Integer.valueOf(v));
+			pref.put(PrefConst.GRID_FRAME_POS_SIZE, posSize);
+		}
 	}
 
 	/**
@@ -795,6 +809,8 @@ public class BaikalCore {
 		public static final String THREAD_COUNT = "ThreadCount";
 		public static final String POLYFIT_SEG_COUNT = "PolyFitSegCount";
 		public static final String GRID_LINE_THRESHOLD = "GridLineThreshold";
+		// Grid窗口的位置和大小
+		public static final String GRID_FRAME_POS_SIZE = "GridFramePosSize";
 	}
 
 	/**
@@ -858,7 +874,7 @@ public class BaikalCore {
 		// cam.setResolution(4368, 2912);
 		// cam_ = cam;
 
-		cam_ = getSimCamera();
+		cam_ = BaikalSimCamera.getInstance();
 
 		// OpenCV相关
 		cvStorage_ = cvCreateMemStorage(0);
@@ -870,27 +886,30 @@ public class BaikalCore {
 	/**
 	 * @throws BaikalCameraException
 	 */
-	private BaikalSimCamera getSimCamera() throws BaikalCameraException {
-		BaikalSimCamera cam = BaikalSimCamera.getInstance();
-		cam.connect();
-		cam.setDrawMarkers(false);
-		cam.setDrawHorzGridLines(false);
-		cam.setDrawVertGridLines(false);
-		cam.setHorzGridLineIndex(0);
-		cam.setVertGridLineIndex(0);
-		cam.setExposureTime(((Number) prefData_.get(PrefConst.SHUTTER))
-				.intValue());
-		cam.setMarkerMargin(((Number) prefData_.get(PrefConst.MARKER_MARGIN))
-				.intValue());
-		cam.setMarkerRadius(((Number) prefData_.get(PrefConst.MARKER_RADIUS))
-				.intValue());
-		cam.setGridLineDensity(
-				((Number) prefData_.get(PrefConst.HORZ_DENSITY)).intValue(),
-				((Number) prefData_.get(PrefConst.VERT_DENSITY)).intValue());
-		cam.setSegmentCount(((Number) prefData_.get(PrefConst.SEGMENT_COUNT))
-				.intValue());
-		cam.setResolution(prefData_.get(PrefConst.RESOLUTION));
-		return cam;
+	private void loadSimCamera() throws BaikalCameraException {
+		cam_.connect();
+		if (cam_ instanceof BaikalSimCamera) {
+			BaikalSimCamera cam = (BaikalSimCamera) cam_;
+			cam.connect();
+			cam.setDrawMarkers(false);
+			cam.setDrawHorzGridLines(false);
+			cam.setDrawVertGridLines(false);
+			cam.setHorzGridLineIndex(0);
+			cam.setVertGridLineIndex(0);
+			cam.setExposureTime(((Number) prefData_.get(PrefConst.SHUTTER))
+					.intValue());
+			cam.setMarkerMargin(((Number) prefData_
+					.get(PrefConst.MARKER_MARGIN)).intValue());
+			cam.setMarkerRadius(((Number) prefData_
+					.get(PrefConst.MARKER_RADIUS)).intValue());
+			cam.setGridLineDensity(
+					((Number) prefData_.get(PrefConst.HORZ_DENSITY)).intValue(),
+					((Number) prefData_.get(PrefConst.VERT_DENSITY)).intValue());
+			cam.setSegmentCount(((Number) prefData_
+					.get(PrefConst.SEGMENT_COUNT)).intValue());
+			int res = ((Number) prefData_.get(PrefConst.RESOLUTION)).intValue();
+			cam.setResolution(Integer.valueOf(res));
+		}
 	}
 
 	/**
@@ -941,9 +960,7 @@ public class BaikalCore {
 	 * Initialize and load all the devices
 	 */
 	public void loadAllDevices() throws BaikalCameraException {
-		connectCamera();
-		setExposureTime(((Number) prefData_.get(PrefConst.SHUTTER)).intValue());
-		setResolution(((Number) prefData_.get(PrefConst.RESOLUTION)).intValue());
+		loadSimCamera();
 	}
 
 	/**

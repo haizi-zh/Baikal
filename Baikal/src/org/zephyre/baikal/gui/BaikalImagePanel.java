@@ -42,7 +42,6 @@ public class BaikalImagePanel extends JPanel {
 
 	@Override
 	protected void paintComponent(Graphics g) {
-		BaikalCore.log("BaikalImage");
 		super.paintComponent(g);
 
 		Graphics2D g2d = (Graphics2D) g;

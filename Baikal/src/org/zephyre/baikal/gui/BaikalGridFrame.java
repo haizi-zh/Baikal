@@ -1,32 +1,103 @@
 package org.zephyre.baikal.gui;
 
+import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.ResourceBundle;
 
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.JRootPane;
 import javax.swing.KeyStroke;
 
+import org.zephyre.baikal.BaikalCore;
+import org.zephyre.baikal.BaikalRes;
+import org.zephyre.baikal.BaikalCore.PrefConst;
+
 public class BaikalGridFrame extends JFrame {
-	private BaikalGridPanel gridPanel;
+	private BaikalGridPanel gridPanel_;
+	private ResourceBundle res_;
 
 	/**
 	 * 获得内部的BaikalGridPanel对象。
+	 * 
 	 * @return 内部的BaikalGridPanel对象。
 	 */
 	public BaikalGridPanel getPanel() {
-		return gridPanel;
+		return gridPanel_;
 	}
 
 	public BaikalGridFrame() {
-		gridPanel = new BaikalGridPanel();
-		getContentPane().add(gridPanel);
+		res_ = ResourceBundle.getBundle(BaikalRes.class.getName());
+		JPanel basicPanel = new JPanel();
+		basicPanel.setLayout(new BoxLayout(basicPanel, BoxLayout.Y_AXIS));
 
-		setTitle("测试栅格");
+		gridPanel_ = new BaikalGridPanel();
+		gridPanel_.setAlignmentX(LEFT_ALIGNMENT);
+		basicPanel.add(gridPanel_);
+
+		JPanel buttonPanel = new JPanel();
+		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
+		buttonPanel.setAlignmentX(LEFT_ALIGNMENT);
+
+		JButton saveButton = new JButton(
+				res_.getString("GridLinesFrameSavePos"));
+		saveButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// 移动到预定的位置
+				Point location = getLocation();
+				Dimension size = gridPanel_.getSize();
+				ArrayList<Integer> posSize = new ArrayList<Integer>();
+				int[] vals = new int[] { location.x, location.y, size.width,
+						size.height };
+				for (int v : vals)
+					posSize.add(Integer.valueOf(v));
+				BaikalCore core = BaikalCore.getInstance();
+				core.putEntry(PrefConst.GRID_FRAME_POS_SIZE, posSize);
+			}
+		});
+		JButton restoreButton = new JButton(
+				res_.getString("GridLinesFrameRestorePos"));
+		restoreButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// 移动到预定的位置
+				BaikalCore core = BaikalCore.getInstance();
+				ArrayList<Number> posSize = (ArrayList<Number>) core
+						.getEntry(PrefConst.GRID_FRAME_POS_SIZE);
+				int width = posSize.get(2).intValue();
+				int height = posSize.get(3).intValue();
+				BaikalCore.log(String.format("Restore: %d, %d", width, height));
+				updatePosSize(posSize.get(0).intValue(), posSize.get(1)
+						.intValue(), posSize.get(2).intValue(), posSize.get(3)
+						.intValue());
+			}
+		});
+		buttonPanel.add(saveButton);
+		buttonPanel.add(restoreButton);
+		basicPanel.add(buttonPanel);
+
+		getContentPane().add(basicPanel);
+
+		setTitle(res_.getString("GridLinesFrameTitle"));
 		pack();
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+	}
+
+	// 设置位置和大小
+	public void updatePosSize(int x, int y, int width, int height) {
+		gridPanel_.setPreferredSize(new Dimension(width, height));
+		gridPanel_.setSize(width, height);
+		setLocation(x, y);
+		pack();
+		pack();
 	}
 
 	@Override
@@ -42,32 +113,36 @@ public class BaikalGridFrame extends JFrame {
 	}
 
 	public synchronized void setDrawMarkers(boolean val) {
-		gridPanel.drawMarkers_ = val;
+		gridPanel_.drawMarkers_ = val;
 	}
 
 	public synchronized void drawHorzGridLines(boolean val) {
-		gridPanel.drawHorzGridLines_ = val;
+		gridPanel_.drawHorzGridLines_ = val;
 	}
 
 	public synchronized void drawVertGridLines(boolean val) {
-		gridPanel.drawVertGridLines_ = val;
+		gridPanel_.drawVertGridLines_ = val;
 	}
-	
+
 	/**
 	 * 是否显示所有的栅格
+	 * 
 	 * @param val
 	 */
-	public void displayFullGrids(boolean val){
-		gridPanel.displayFullGrids(val);
+	public void displayFullGrids(boolean val) {
+		gridPanel_.displayFullGrids(val);
 	}
 
 	/**
 	 * 设置水平及垂直栅格线的offset
-	 * @param vertOffset 垂直栅格线的偏移
-	 * @param horzOffset 水平栅格线的偏移
+	 * 
+	 * @param vertOffset
+	 *            垂直栅格线的偏移
+	 * @param horzOffset
+	 *            水平栅格线的偏移
 	 */
 	public void setGridLineOffset(int vertOffset, int horzOffset) {
-		gridPanel.vertOffset_ = vertOffset;
-		gridPanel.horzOffset_ = horzOffset;
+		gridPanel_.vertOffset_ = vertOffset;
+		gridPanel_.horzOffset_ = horzOffset;
 	}
 }
