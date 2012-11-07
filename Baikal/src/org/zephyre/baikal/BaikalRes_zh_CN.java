@@ -27,7 +27,7 @@ public class BaikalRes_zh_CN extends ListResourceBundle {
 			{ "MarkerLoc", "定位" },
 			{ "AutoPreview", "自动预览" },
 			// ProcParam
-			{ "ThresholdParam", "阈值 (0~255)" },
+			{ "ThresholdParam", "RGB通道阈值 (0~255)" },
 			{ "SmoothWinSize", "平滑窗口大小" },
 			{ "SmoothParam", "平滑参数" },
 			{ "HoughDp", "DP" },

@@ -1,12 +1,17 @@
 package org.zephyre.baikal.gui;
 
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 
+import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -35,15 +40,22 @@ public class BaikalGridFrame extends JFrame {
 	public BaikalGridFrame() {
 		res_ = ResourceBundle.getBundle(BaikalRes.class.getName());
 		JPanel basicPanel = new JPanel();
-		basicPanel.setLayout(new BoxLayout(basicPanel, BoxLayout.Y_AXIS));
+		basicPanel.setLayout(new GridBagLayout());
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.fill = GridBagConstraints.BOTH;
+		gbc.anchor = GridBagConstraints.LINE_START;
+		gbc.weighty = 1;
+		gbc.weightx = 1;
 
 		gridPanel_ = new BaikalGridPanel();
 		gridPanel_.setAlignmentX(LEFT_ALIGNMENT);
-		basicPanel.add(gridPanel_);
+		gridPanel_.setBorder(BorderFactory.createEtchedBorder());
+		basicPanel.add(gridPanel_, gbc);
 
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
-		buttonPanel.setAlignmentX(LEFT_ALIGNMENT);
 
 		JButton saveButton = new JButton(
 				res_.getString("GridLinesFrameSavePos"));
@@ -68,20 +80,19 @@ public class BaikalGridFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// 移动到预定的位置
-				BaikalCore core = BaikalCore.getInstance();
-				ArrayList<Number> posSize = (ArrayList<Number>) core
-						.getEntry(PrefConst.GRID_FRAME_POS_SIZE);
-				int width = posSize.get(2).intValue();
-				int height = posSize.get(3).intValue();
-				BaikalCore.log(String.format("Restore: %d, %d", width, height));
-				updatePosSize(posSize.get(0).intValue(), posSize.get(1)
-						.intValue(), posSize.get(2).intValue(), posSize.get(3)
-						.intValue());
+				updatePosSize();
 			}
 		});
 		buttonPanel.add(saveButton);
+		final int BUTTON_GAP = 12;
+		buttonPanel.add(Box.createHorizontalStrut(BUTTON_GAP));
 		buttonPanel.add(restoreButton);
-		basicPanel.add(buttonPanel);
+		gbc.gridy = 1;
+		gbc.weighty = 0;
+		gbc.fill = GridBagConstraints.NONE;
+		final int GAP = 4;
+		gbc.insets = new Insets(GAP, GAP, GAP, GAP);
+		basicPanel.add(buttonPanel, gbc);
 
 		getContentPane().add(basicPanel);
 
@@ -98,6 +109,17 @@ public class BaikalGridFrame extends JFrame {
 		setLocation(x, y);
 		pack();
 		pack();
+	}
+
+	public void updatePosSize() {
+		BaikalCore core = BaikalCore.getInstance();
+		ArrayList<Number> posSize = (ArrayList<Number>) core
+				.getEntry(PrefConst.GRID_FRAME_POS_SIZE);
+		int width = posSize.get(2).intValue();
+		int height = posSize.get(3).intValue();
+		BaikalCore.log(String.format("Restore: %d, %d", width, height));
+		updatePosSize(posSize.get(0).intValue(), posSize.get(1).intValue(),
+				posSize.get(2).intValue(), posSize.get(3).intValue());
 	}
 
 	@Override

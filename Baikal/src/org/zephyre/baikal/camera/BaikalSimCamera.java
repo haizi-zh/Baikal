@@ -140,8 +140,13 @@ public class BaikalSimCamera extends BaikalAbstractCamera {
 		bitDepth_ = 24;
 		resolution_ = 1;
 		exposureMs_ = 10;
+		maxWaitingMs_ = Long.MAX_VALUE;
 
 		fillBufferQ();
+	}
+
+	public void setMaxWaitingMs(int val) {
+		maxWaitingMs_ = val;
 	}
 
 	/*
@@ -169,7 +174,8 @@ public class BaikalSimCamera extends BaikalAbstractCamera {
 	}
 
 	@Override
-	public synchronized void setResolution(Object resType) throws BaikalCameraException {
+	public synchronized void setResolution(Object resType)
+			throws BaikalCameraException {
 		if (!isConnected())
 			throw BaikalCameraException
 					.create(BaikalCameraErrorDesc.CAMERA_NOT_CONNECTED);
@@ -195,7 +201,8 @@ public class BaikalSimCamera extends BaikalAbstractCamera {
 	}
 
 	@Override
-	public synchronized void setExposureTime(int val) throws BaikalCameraException {
+	public synchronized void setExposureTime(int val)
+			throws BaikalCameraException {
 		if (val <= 0 || val > MAX_EXPOSURE)
 			throw createException(BaikalCameraErrorDesc.INVALID_ARGUMENT);
 		exposureMs_ = val;
@@ -233,6 +240,7 @@ public class BaikalSimCamera extends BaikalAbstractCamera {
 	private int vertGridLineDensity_;
 	// 分段的数量
 	private int segmentCount_;
+	private long maxWaitingMs_;
 
 	protected BaikalCameraException createException(BaikalCameraErrorDesc desc) {
 		BaikalCameraException e = new BaikalCameraException(desc);
@@ -301,7 +309,7 @@ public class BaikalSimCamera extends BaikalAbstractCamera {
 			long tic = System.nanoTime();
 			int width = getWidth();
 			int height = getHeight();
-			image = bufferQ.poll(getExposureMs(), TimeUnit.MILLISECONDS);
+			image = bufferQ.poll(maxWaitingMs_, TimeUnit.MILLISECONDS);
 			if (image == null)
 				throw BaikalCameraException
 						.create(BaikalCameraErrorDesc.BUFFER_UNDER_FLOW);

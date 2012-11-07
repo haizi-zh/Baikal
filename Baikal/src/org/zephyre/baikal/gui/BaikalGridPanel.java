@@ -114,24 +114,24 @@ public class BaikalGridPanel extends JPanel {
 		Insets insets = getInsets();
 
 		double dx = (getWidth() - 2 * radius - 2 * margin - insets.left - insets.right)
-				/ (double) (densityX - 1);
+				/ (double) densityX;
 		double dy = (getHeight() - 2 * radius - 2 * margin - insets.top - insets.bottom)
-				/ (double) (densityY - 1);
+				/ (double) densityY;
 		g2d.setColor(GRID_LINE_COLOR);
 		if (drawVertGridLines_) {
 			for (int i = 0; i < densityX / segCount; i++) {
-				int x = (int) Math.round(margin + radius
+				int x = (int) Math.round(insets.left + margin + radius
 						+ (i * segCount + vertOffset_) * dx);
-				g2d.drawLine(x, margin + radius, x, getHeight() - margin
-						- radius);
+				g2d.drawLine(x, insets.top + margin + radius, x, getHeight()
+						- insets.bottom - margin - radius);
 			}
 		}
 		if (drawHorzGridLines_) {
 			for (int i = 0; i < densityY / segCount; i++) {
-				int y = (int) Math.round(margin + radius
+				int y = (int) Math.round(insets.top + margin + radius
 						+ (i * segCount + horzOffset_) * dy);
-				g2d.drawLine(margin + radius, y, getWidth() - margin - radius,
-						y);
+				g2d.drawLine(insets.left + margin + radius, y, getWidth()
+						- insets.right - margin - radius, y);
 			}
 		}
 		vertOffset_ = originalVertOffset;

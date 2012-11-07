@@ -75,6 +75,10 @@ public class ResultImagePanel extends BaikalImagePanel {
 					double[] topRight = imageToScreen(markerList_[i][0]
 							+ markerList_[i][2], markerList_[i][1]
 							+ markerList_[i][2]);
+					double[] center = new double[] {
+							(upperLeft[0] + topRight[0]) / 2,
+							(upperLeft[1] + topRight[1]) / 2 };
+					double crossRadius = (center[0] - upperLeft[0]) / 2;
 					if (upperLeft != null && topRight != null) {
 
 						Rectangle markerRc = new Rectangle(
@@ -84,24 +88,18 @@ public class ResultImagePanel extends BaikalImagePanel {
 								(int) Math.round(topRight[1] - upperLeft[1]));
 						g2d.drawOval(markerRc.x, markerRc.y, markerRc.width,
 								markerRc.height);
-						int crossX1 = (int) Math.round(markerRc.x
-								- markerRc.width / 4.0);
-						int crossX2 = (int) Math.round(markerRc.x
-								+ markerRc.width / 4.0);
-						int crossY1 = (int) Math.round(markerRc.y
-								- markerRc.height / 4.0);
-						int crossY2 = (int) Math.round(markerRc.y
-								+ markerRc.height / 4.0);
-						int xc = (int) Math.round(markerList_[i][0]);
-						int yc = (int) Math.round(markerList_[i][1]);
-						g2d.drawLine(crossX1, yc, crossX2, yc);
-						g2d.drawLine(xc, crossY1, xc, crossY2);
+						int xc = (int) Math.round(center[0]);
+						int yc = (int) Math.round(center[1]);
+						int intRadius = (int) Math.round(crossRadius);
+						g2d.drawLine(xc - intRadius, yc, xc + intRadius, yc);
+						g2d.drawLine(xc, yc - intRadius, xc, yc + intRadius);
 
 						// marker信息
 						g2d.drawString(String.format(
 								"#%d: Loc: (%.2f, %.2f), R: %.2f)", i,
 								markerList_[i][0], markerList_[i][1],
-								markerList_[i][2]), crossX2, crossY2);
+								markerList_[i][2]), xc + 3 * intRadius, yc + 3
+								* intRadius);
 					}
 				}
 			}

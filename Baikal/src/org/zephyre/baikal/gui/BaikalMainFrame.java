@@ -17,6 +17,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.KeyboardFocusManager;
 import java.awt.color.ColorSpace;
@@ -141,6 +142,7 @@ public class BaikalMainFrame extends JFrame {
 	private JButton snapshotButton_;
 	private AbstractAction toggleLiveAction_;
 	private AbstractAction runTestAction_;
+	private JButton setParamButton_;
 	private AbstractAction setParamAction_;
 	private JLabel statusLabel;
 
@@ -172,7 +174,7 @@ public class BaikalMainFrame extends JFrame {
 	/**
 	 * 图像处理模块的参数设置
 	 */
-	protected BaikalProcParam procParamDlg_;
+	protected ImageProcessParamFrame procParamDlg_;
 
 	private AbstractAction snapshotAction_;
 
@@ -278,12 +280,7 @@ public class BaikalMainFrame extends JFrame {
 					gridFrame_.drawHorzGridLines(true);
 					gridFrame_.drawVertGridLines(true);
 					gridFrame_.displayFullGrids(true);
-					// 移动到预定的位置
-					ArrayList<Number> posSize = (ArrayList<Number>) core_
-							.getEntry(PrefConst.GRID_FRAME_POS_SIZE);
-					gridFrame_.updatePosSize(posSize.get(0).intValue(), posSize
-							.get(1).intValue(), posSize.get(2).intValue(),
-							posSize.get(3).intValue());
+					gridFrame_.updatePosSize();
 				}
 				gridFrame_.setVisible(true);
 				gridFrame_.repaint();
@@ -414,7 +411,7 @@ public class BaikalMainFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (procParamDlg_ == null) {
-					procParamDlg_ = new BaikalProcParam();
+					procParamDlg_ = new ImageProcessParamFrame();
 				}
 				procParamDlg_.setVisible(true);
 			}
@@ -423,6 +420,11 @@ public class BaikalMainFrame extends JFrame {
 				res_.getString("SetParam"));
 	}
 
+	/**
+	 * 左侧的控制JPanel
+	 * 
+	 * @return
+	 */
 	private JPanel createControllerPanel() {
 		JPanel mainPanel = new JPanel(new GridBagLayout());
 		mainPanel.setBorder(BorderFactory.createEtchedBorder());
@@ -545,6 +547,7 @@ public class BaikalMainFrame extends JFrame {
 		toggleLiveButton_ = new JButton(toggleLiveAction_);
 		runTestButton_ = new JButton(runTestAction_);
 		snapshotButton_ = new JButton(snapshotAction_);
+		setParamButton_ = new JButton(setParamAction_);
 
 		gbc = new GridBagConstraints();
 		gbc.gridx = 0;
@@ -606,17 +609,10 @@ public class BaikalMainFrame extends JFrame {
 		mainPanel.add(gridCountText, gbc);
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 
-		JPanel buttonBox = new JPanel();
-		buttonBox.setLayout(new BoxLayout(buttonBox, BoxLayout.X_AXIS));
-		buttonBox.add(snapshotButton_);
-		buttonBox.add(Box.createHorizontalStrut(24));
-		buttonBox.add(toggleLiveButton_);
-		buttonBox.add(Box.createHorizontalStrut(24));
-		buttonBox.add(runTestButton_);
 		gbc.gridy++;
 		gbc.gridx = 0;
 		gbc.gridwidth = 2;
-		mainPanel.add(buttonBox, gbc);
+		mainPanel.add(createCtrlButtonPanel(), gbc);
 		gbc.gridwidth = 1;
 
 		gbc.gridy++;
@@ -638,6 +634,26 @@ public class BaikalMainFrame extends JFrame {
 	}
 
 	/**
+	 * 控制按钮的JPanel，包括拍照，预览，设置和测试四个按钮。
+	 * 
+	 * @return
+	 */
+	private JPanel createCtrlButtonPanel() {
+		JPanel buttonBox = new JPanel();
+		GridLayout buttonBoxLayout = new GridLayout(2, 2);
+		final int VGAP = 12;
+		final int HGAP = 24;
+		buttonBoxLayout.setVgap(VGAP);
+		buttonBoxLayout.setHgap(HGAP);
+		buttonBox.setLayout(buttonBoxLayout);
+		buttonBox.add(snapshotButton_);
+		buttonBox.add(toggleLiveButton_);
+		buttonBox.add(runTestButton_);
+		buttonBox.add(setParamButton_);
+		return buttonBox;
+	}
+
+	/**
 	 * 创立一个JTabbedPane，里面保存拍照的结果，以及profiler图像。
 	 * 
 	 * @return
@@ -649,7 +665,7 @@ public class BaikalMainFrame extends JFrame {
 		// The painting area
 		imagePanel_ = new ResultImagePanel();
 		imagePanel_.setPreferredSize(new Dimension(640, 640 * 2 / 3));
-		imagePanel_.setBorder(BorderFactory.createLineBorder(Color.PINK, 12));
+//		imagePanel_.setBorder(BorderFactory.createLineBorder(Color.PINK, 12));
 		imagePanel_.setAlignmentX(LEFT_ALIGNMENT);
 		imagePanel_.addMouseMotionListener(new MouseAdapter() {
 			@Override
@@ -903,12 +919,11 @@ public class BaikalMainFrame extends JFrame {
 		if (bufImage_ == null)
 			return;
 
-		imagePanel_.drawImage(copyImage(bufImage_, null), null, null, null);
-		// HashMap<String, Object> hm = core_.measureMarkers(bufImage_, 2);
-		// BufferedImage bufProcImage = (BufferedImage)
-		// hm.get("ProcessedImage");
-		// double[][] markerList = (double[][]) hm.get("MarkerList");
-		// imagePanel_.drawImage(bufProcImage, markerList, null, null);
+		// imagePanel_.drawImage(copyImage(bufImage_, null), null, null, null);
+		HashMap<String, Object> hm = core_.measureMarkers(bufImage_, 2);
+		BufferedImage bufProcImage = (BufferedImage) hm.get("ProcessedImage");
+		double[][] markerList = (double[][]) hm.get("MarkerList");
+		imagePanel_.drawImage(bufProcImage, markerList, null, null);
 	}
 
 	/**
@@ -1316,6 +1331,8 @@ public class BaikalMainFrame extends JFrame {
 	}
 
 	/**
+	 * 上部的信息JPanel。
+	 * 
 	 * @return
 	 */
 	private JPanel createInfoPanel() {

@@ -393,8 +393,6 @@ public class BaikalCore {
 		}
 
 		// 平滑和阈值化
-		// double thrd = ((Number) prefData_.get(PrefConst.THRESHOLD))
-		// .doubleValue();
 		@SuppressWarnings("unchecked")
 		ArrayList<Number> thrdList = (ArrayList<Number>) prefData_
 				.get(PrefConst.THRESHOLD);
@@ -414,6 +412,8 @@ public class BaikalCore {
 			cvThreshold(imageChannels[i], imageChannels[i], thrdList.get(i)
 					.doubleValue(), 0, CV_THRESH_TOZERO);
 		}
+		opencv_core.cvMerge(imageChannels[0], imageChannels[1],
+				imageChannels[2], null, processedbi);
 
 		// cvThreshold(processedbi, processedbi, thrd, 0, CV_THRESH_TOZERO);
 
