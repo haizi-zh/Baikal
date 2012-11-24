@@ -271,9 +271,8 @@ public class BaikalMainFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent evt) {
 				BaikalAbstractCamera cam = core_.getCamera();
-				int segCount = ((Number) core_
-						.getEntry(PrefConst.SEGMENT_COUNT)).intValue();
 
+				// 将BaikalGridFrame准备好，画所有栅格线以及marker
 				if (gridFrame_ == null) {
 					gridFrame_ = new BaikalGridFrame();
 					gridFrame_.setDrawMarkers(true);
@@ -290,6 +289,8 @@ public class BaikalMainFrame extends JFrame {
 				try {
 					if (cam instanceof BaikalSimCamera) {
 						BaikalSimCamera simcam = (BaikalSimCamera) cam;
+						int segCount = ((Number) core_
+								.getEntry(PrefConst.SEGMENT_COUNT)).intValue();
 						int index = (int) (cnt_ % (2 * segCount + 1));
 						if (index == 0) {
 							// 显示markers
