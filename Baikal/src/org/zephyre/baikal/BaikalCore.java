@@ -1,47 +1,28 @@
 package org.zephyre.baikal;
 
 import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Point;
 import java.awt.Toolkit;
-import java.awt.color.ColorSpace;
-import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.ComponentColorModel;
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferByte;
-import java.awt.image.PixelInterleavedSampleModel;
-import java.awt.image.Raster;
-import java.awt.image.WritableRaster;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.Random;
 import java.util.logging.ConsoleHandler;
-import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.prefs.BackingStoreException;
-import java.util.prefs.Preferences;
 
 import javax.imageio.ImageIO;
 import javax.swing.DefaultListModel;
@@ -49,10 +30,6 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import org.zephyre.baikal.camera.*;
 import org.zephyre.baikal.gui.*;
 
@@ -63,9 +40,6 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import com.googlecode.javacpp.BytePointer;
 import com.googlecode.javacv.cpp.opencv_core;
-import com.googlecode.javacv.cpp.opencv_core.CvPoint3D64f;
-import com.googlecode.javacv.cpp.opencv_highgui;
-import com.googlecode.javacv.cpp.opencv_imgproc;
 import com.googlecode.javacv.cpp.opencv_core.CvMemStorage;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint2D32f;
 import com.googlecode.javacv.cpp.opencv_core.CvPoint3D32f;
@@ -74,7 +48,6 @@ import com.googlecode.javacv.cpp.opencv_core.CvSize;
 import com.googlecode.javacv.cpp.opencv_core.IplImage;
 
 import static com.googlecode.javacv.cpp.opencv_core.*;
-import static com.googlecode.javacv.cpp.opencv_highgui.cvLoadImage;
 import static com.googlecode.javacv.cpp.opencv_imgproc.*;
 
 public class BaikalCore {
@@ -866,15 +839,15 @@ public class BaikalCore {
 
 		// Initialize devices
 
-		// BaikalFileCamera cam = BaikalFileCamera.getInstance();
-		// String[] images = new String[9];
-		// for (int i = 0; i < images.length; i++)
-		// images[i] = String.format("res\\samples\\sample-5d-%d.JPG", i + 1);
-		// cam.setImageFiles(images);
-		// cam.setResolution(4368, 2912);
-		// cam_ = cam;
+		CanonEOSCamera cam = CanonEOSCamera.getInstance();
+		CanonEOSCamera.isSimulated_ = true;
+		String[] images = new String[9];
+		for (int i = 0; i < images.length; i++)
+			images[i] = String.format("res\\samples\\sample-5d-%d.JPG", i + 1);
+		cam.setImageFiles(images);
+		cam_ = cam;
 
-		cam_ = BaikalSimCamera.getInstance();
+		// cam_ = BaikalSimCamera.getInstance();
 
 		// OpenCV相关
 		cvStorage_ = cvCreateMemStorage(0);

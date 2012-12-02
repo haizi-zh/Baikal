@@ -1,7 +1,6 @@
-%module EDSDKJ
+%module EDSDKPy
 
 %inline %{
-#include "test.h"
 #include "EDSDK.h"
 %}
 
@@ -75,6 +74,28 @@ typedef struct tagEdsImageInfo
     EdsUInt32   reserved2;
 } EdsImageInfo;
 
+typedef struct tagEdsVolumeInfo
+{
+%immutable;
+    EdsUInt32   storageType;
+    EdsAccess   access;
+    unsigned long long   maxCapacity;
+    unsigned long long   freeSpaceInBytes;
+    EdsChar*     szVolumeLabel;
+
+} EdsVolumeInfo;
+
+typedef struct tagEdsDirectoryItemInfo
+{
+%immutable;
+    EdsUInt32   size;
+    EdsBool     isFolder;
+    EdsUInt32   groupID;
+    EdsUInt32   option;
+    EdsChar*     szFileName;
+	EdsUInt32	format;
+} EdsDirectoryItemInfo;
+
 // Enums
 
 %javaconst(1);
@@ -127,8 +148,30 @@ enum EdsFileCreateDisposition
 
 };
 
-int fact(int n);
-int fact1(int n);
+%inline %{
+EdsSize createEdsSize(int width, int height) {
+	EdsSize sz;
+	sz.width = width;
+	sz.height = height;
+	return sz;
+}
+
+EdsPoint createEdsPoint(int x, int y) {
+	EdsPoint pt;
+	pt.x = x;
+	pt.y = y;
+	return pt;
+}
+
+EdsRect createEdsRect(int x, int y, int width, int height) {
+	EdsRect rc;
+	rc.point = createEdsPoint(x, y);
+	rc.size = createEdsSize(width, height);
+	return rc;
+}
+%}
+
+#define EDS_ERR_OK 0
 
 %pointer_class(EdsBaseRef, BaseRef);
 %pointer_class(EdsUInt32, UInt32Ref);

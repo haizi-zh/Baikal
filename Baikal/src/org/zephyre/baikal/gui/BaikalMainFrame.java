@@ -1,13 +1,6 @@
 package org.zephyre.baikal.gui;
 
 import static com.googlecode.javacv.cpp.opencv_core.cvGetSeqElem;
-import ij.ImagePlus;
-import ij.gui.ImageCanvas;
-import ij.gui.ImageWindow;
-import ij.io.FileSaver;
-import ij.io.Opener;
-import ij.process.ByteProcessor;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -118,7 +111,6 @@ import com.googlecode.javacv.cpp.opencv_core.IplImage;
 import com.googlecode.javacv.cpp.opencv_core;
 import com.googlecode.javacv.cpp.opencv_highgui;
 import com.googlecode.javacv.cpp.opencv_imgproc;
-import com.zephyre.baikal.edsdk.EDSDK_wrapJ;
 
 import static com.googlecode.javacv.cpp.opencv_core.cvAdd;
 import static com.googlecode.javacv.cpp.opencv_imgproc.CV_BLUR;
@@ -1580,7 +1572,7 @@ public class BaikalMainFrame extends JFrame {
 	}
 
 	static {
-		System.loadLibrary("EDSDK_wrapJ");
+		System.loadLibrary("EDSDKJ_wrap");
 	}
 
 	public static void main(String[] args) {

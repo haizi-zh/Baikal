@@ -27,8 +27,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.KeyStroke;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.zephyre.baikal.BaikalCore;
 import org.zephyre.baikal.BaikalCore.PrefConst;
 

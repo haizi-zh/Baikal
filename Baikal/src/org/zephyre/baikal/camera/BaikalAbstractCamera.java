@@ -19,6 +19,15 @@ public abstract class BaikalAbstractCamera {
 	 * The bit depth
 	 */
 	public abstract int getBitDepth() throws BaikalCameraException;
+	
+	/**
+	 * Number of channels.
+	 * @return
+	 * @throws BaikalCameraException
+	 */
+	public int getNumChannels() throws BaikalCameraException{
+		return 0;
+	}
 
 	/**
 	 * 单张拍照（阻塞模式）。返回的BufferedImage使用完毕以后需要归还。

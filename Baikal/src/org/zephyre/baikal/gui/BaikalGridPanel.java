@@ -16,7 +16,6 @@ import java.util.Random;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
-import org.json.simple.JSONObject;
 import org.zephyre.baikal.BaikalCore;
 import org.zephyre.baikal.BaikalCore.PrefConst;
 

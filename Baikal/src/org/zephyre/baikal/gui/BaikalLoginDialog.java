@@ -48,15 +48,12 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
 import org.zephyre.baikal.BaikalCore;
 import org.zephyre.baikal.BaikalCore.BaikalUserException;
 import org.zephyre.baikal.BaikalRes;
 
 public class BaikalLoginDialog extends JDialog {
 	public String selectedUserName = null;
-	public JSONObject userData = null;
 	private JList<String> userListJList;
 	private ResourceBundle res_;
 
